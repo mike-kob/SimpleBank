@@ -1,4 +1,5 @@
 import sys
+
 from Bot import Bot
 
 bot = Bot()
@@ -14,3 +15,5 @@ if __name__ == '__main__':
         duration = int(sys.argv[4])
 
         bot.move(left, right, duration)
+    elif command == 'startcamera':
+        bot.start_camera()
