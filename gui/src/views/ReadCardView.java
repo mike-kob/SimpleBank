@@ -39,13 +39,15 @@ public class ReadCardView implements View {
         caption.setVisible(true);
         jpane.add(caption, 0);
 
-        JButton proceed = new JButton();
+        JButton proceed = new JButton("Capture");
         proceed.setSize(160, 80);
-        int px = (jpane.getWidth() - caption.getWidth()) / 2;
-        int py = 500;
+        int px = (jpane.getWidth() - proceed.getWidth()) / 2;
+        int py = 900;
         proceed.setLocation(px, py);
         proceed.setVisible(true);
         proceed.addActionListener(listeners.get("proceed_enter_card_button"));
+        jpane.add(proceed, 0);
+        jpane.repaint();
 
     }
 
