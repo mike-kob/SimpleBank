@@ -23,7 +23,6 @@ namespace Bank_server.Models
         // initial sum
         public decimal Balance { get; set; }
         public decimal Rate { get; set; }
-        //sum with percents; is updated each ??
         public decimal TotalBalance => UpdateBalance() ? Balance + Balance * Rate : Balance;
         public DateTime StartDeposit { get; set; }
         public DateTime EndDeposit { get => new DateTime(StartDeposit.Year + 1, StartDeposit.Month, StartDeposit.Day, StartDeposit.Hour, StartDeposit.Minute, StartDeposit.Second); }
