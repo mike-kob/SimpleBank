@@ -2,9 +2,9 @@
 
 namespace Bank_server.Models
 {
-    public class Bank_serverContext : DbContext
+    public class BankServerContext : DbContext
     {
-        public Bank_serverContext (DbContextOptions<Bank_serverContext> options)
+        public BankServerContext (DbContextOptions<BankServerContext> options)
             : base(options)
         {
         }

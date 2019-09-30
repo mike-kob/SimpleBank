@@ -22,7 +22,7 @@ namespace Bank_server
         {
             services.AddControllers();
 
-            services.AddDbContext<Bank_serverContext>(options =>
+            services.AddDbContext<BankServerContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("Bank_serverContext")));
         }
 

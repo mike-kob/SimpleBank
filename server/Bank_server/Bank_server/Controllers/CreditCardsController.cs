@@ -13,9 +13,9 @@ namespace Bank_server.Controllers
     [ApiController]
     public class CreditCardsController : ControllerBase
     {
-        private readonly Bank_serverContext _context;
+        private readonly BankServerContext _context;
 
-        public CreditCardsController(Bank_serverContext context)
+        public CreditCardsController(BankServerContext context)
         {
             _context = context;
         }
