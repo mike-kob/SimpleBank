@@ -1,25 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Bank_server.Models
 {
     public class DepositCard : ICard
     {
-        public DepositCard(string cardNum, string pin, DateTime dateCreated, User cardUser, decimal balance, decimal rate, DateTime startDeposit)
-        {
-            CardNum = cardNum;
-            Pin = pin;
-            DateCreated = dateCreated;
-            CardUser = cardUser;
-            Balance = balance;
-            Rate = rate;
-            StartDeposit = startDeposit;
-            Commission = false;
-        }
         [Key]
         public string CardNum { get; set; }
         [Required]
