@@ -1,5 +1,6 @@
 package views;
 
+import javafx.scene.layout.Border;
 import utils.Constatns;
 import javax.swing.*;
 import java.awt.*;
@@ -37,12 +38,19 @@ public class EnterPinView implements View{
         JButton confirm = new JButton("Confirm");
         confirm.setSize(160, 80);
         confirm.setFont(new Font("Arial", Font.PLAIN, 20));
-        int px = (jpane.getWidth() - confirm.getWidth()) / 2;
-        int py = 900;
-        confirm.setLocation(px, py);
+        int px = (jpane.getWidth() - confirm.getWidth()) / 2 - 130;
+        confirm.setLocation(px, 900);
         confirm.setVisible(true);
         confirm.addActionListener(listeners.get("confirm_pin_button"));
         jpane.add(confirm, 0);
+
+        JButton cancel = new JButton("Cancel");
+        cancel.setSize(160, 80);
+        cancel.setFont(new Font("Arial", Font.PLAIN, 20));
+        cancel.setLocation(px + 250, 900);
+        cancel.setVisible(true);
+        cancel.addActionListener(listeners.get("cancel_button"));
+        jpane.add(cancel, 0);
         jpane.repaint();
     }
 

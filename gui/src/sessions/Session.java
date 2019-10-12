@@ -32,6 +32,7 @@ public class Session {
     private void initListeners(){
         listeners.put("proceed_enter_card_button", proceed_enter_card);
         listeners.put("confirm_pin_button", confirm_pin);
+        listeners.put("cancel_button", cancel);
         listeners.put("change_pin_button", change_pin);
         listeners.put("withdraw_cash_button", withdraw_cash);
         listeners.put("view_balance_button", view_balance);
@@ -40,30 +41,28 @@ public class Session {
     }
 
     private ActionListener proceed_enter_card = e -> {
-        changeView(new OptionsView(jpane, listeners));
+        changeView(new EnterPinView(jpane, listeners));
     };
 
     private ActionListener confirm_pin = e -> {
+        changeView(new OptionsView(jpane, listeners));
+    };
 
+    private ActionListener cancel = e -> {
     };
 
     private ActionListener change_pin = e -> {
-        changeView(new EnterPinView(jpane, listeners));
     };
 
     private ActionListener withdraw_cash = e -> {
-        changeView(new EnterPinView(jpane, listeners));
     };
 
     private ActionListener view_balance = e -> {
-        changeView(new EnterPinView(jpane, listeners));
     };
 
     private ActionListener transfer = e -> {
-        changeView(new EnterPinView(jpane, listeners));
     };
 
     private ActionListener finish = e -> {
-        changeView(new EnterPinView(jpane, listeners));
     };
 }
