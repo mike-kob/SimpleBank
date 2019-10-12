@@ -1,5 +1,6 @@
 package sessions;
 
+import views.EnterPinView;
 import views.ReadCardView;
 import views.View;
 
@@ -29,9 +30,14 @@ public class Session {
 
     private void initListerners(){
         listeners.put("proceed_enter_card_button", proceed_enter_card);
+        listeners.put("confirm_pin_button", confirm_pin);
     }
 
     private ActionListener proceed_enter_card = e -> {
+        changeView(new EnterPinView(jpane, listeners));
+    };
+
+    private ActionListener confirm_pin = e -> {
 
     };
 }
