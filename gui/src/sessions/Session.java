@@ -1,5 +1,6 @@
 package sessions;
 
+import ATM.ATM;
 import views.EnterPinView;
 import views.ReadCardView;
 import views.OptionsView;
@@ -17,6 +18,8 @@ public class Session {
     private JLayeredPane jpane = null;
 
     public Session(JLayeredPane jp){
+        ATM atm = new ATM();
+        atm.checkoutUnits(null, 100);
         initListeners();
         this.jpane = jp;
         changeView(new ReadCardView(jpane, listeners));
