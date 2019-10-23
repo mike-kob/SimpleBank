@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BankServer.Migrations
 {
     [DbContext(typeof(BankServerContext))]
-    [Migration("20191013094640_Initial")]
-    partial class Initial
+    [Migration("20191014114157_Fourth")]
+    partial class Fourth
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -121,6 +121,9 @@ namespace BankServer.Migrations
 
                     b.Property<DateTime>("StartDeposit")
                         .HasColumnType("datetime2");
+
+                    b.Property<decimal>("TotalBalance")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("CardNum");
 

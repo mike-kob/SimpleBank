@@ -18,23 +18,54 @@ namespace Bank_server.Models
         [Required]
         public decimal Limit { get; set; }
         [Required]
-        public decimal Balance { get; }
-        public double PercentIfDelay { get; } = 1.0;
+        public decimal Balance
+        {
+            get => OwnMoney + Limit;
+            //set => Balance = value;
+        }
+        public decimal PercentIfDelay { get; } = 1.0m;
         public bool IsInLimit { get; set; }
         public DateTime? LimitWithdrawn { get; set; }
-        public DateTime? EndLimit { get; set; }
+        public DateTime? EndLimit { get => EndLimitDate(); }
         public bool? IsLimitPaid { get; set; }
 
         [ForeignKey("Id")]
         public User CardUser { get; set; }
         public int Id { get; set; }
-
-        //
+                
         public DateTime? EndLimitDate()
         {
-            //TO DO
             //you can replenish the account without any percent until calculated date - end of the next month
-            return null;
+            if (LimitWithdrawn!=null)
+            {
+                var y = LimitWithdrawn.Value.Year;
+                bool isLeap = (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0);
+                var month = (LimitWithdrawn.Value.Month + 1) % 12;
+                var day = 0;
+                switch (month)
+                {
+                    case 1: case 3: case 5:
+                    case 7: case 8:
+                    case 10:
+                        day = 31;
+                        break;
+                    case 12:
+                        day = 31;
+                        y += 1;
+                        break;
+                    case 4: case 6:
+                    case 9:
+                    case 11:
+                        day = 30;
+                        break;
+                    case 2:
+                        day = isLeap ? 29 : 28;
+                        break;
+                }
+                return new DateTime(y, month, day);
+            }
+            else 
+                return null;
         }
     }
 }
