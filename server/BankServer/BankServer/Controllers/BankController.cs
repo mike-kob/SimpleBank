@@ -12,11 +12,6 @@ using System.Threading.Tasks;
 
 namespace BankServer.Controllers
 {
-    public class Withdraw
-    {
-        public long num { get; set; }
-        public decimal amount { get; set; }
-    }
     [Route("api/[controller]")]
     [ApiController]
     public class BankController : ControllerBase
