@@ -36,6 +36,7 @@ public class Session {
         listeners.put("transfer_button", transfer);
         listeners.put("finish_button", finish);
         listeners.put("confirm_new_pin_button", confirm_new_pin);
+        listeners.put("confirm_withdrawal_button", confirm_withdrawal);
     }
 
     private ActionListener proceed_enter_card = e -> {
@@ -55,6 +56,7 @@ public class Session {
     };
 
     private ActionListener withdraw_cash = e -> {
+        changeView(new WithdrawCashView(jpane, listeners));
     };
 
     private ActionListener view_balance = e -> {
@@ -69,6 +71,10 @@ public class Session {
     };
 
     private ActionListener confirm_new_pin = e -> {
+        changeView(new EnterPinView(jpane, listeners));
+    };
+
+    private ActionListener confirm_withdrawal = e -> {
         changeView(new EnterPinView(jpane, listeners));
     };
 }
