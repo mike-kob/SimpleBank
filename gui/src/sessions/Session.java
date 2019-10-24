@@ -48,7 +48,7 @@ public class Session {
     };
 
     private ActionListener cancel = e -> {
-        changeView(new ReadCardView(jpane, listeners));
+        changeView(new EnterPinView(jpane, listeners));
     };
 
     private ActionListener change_pin = e -> {

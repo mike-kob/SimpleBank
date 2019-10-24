@@ -51,7 +51,7 @@ public class EnterPinView implements View{
         cancel.setFont(new Font("Arial", Font.PLAIN, 20));
         cancel.setLocation(px + 250, 900);
         cancel.setVisible(true);
-        cancel.addActionListener(listeners.get("cancel_button"));
+        cancel.addActionListener(listeners.get("finish_button"));
         jpane.add(cancel, 0);
         jpane.repaint();
     }
