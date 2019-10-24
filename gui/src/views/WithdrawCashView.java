@@ -1,8 +1,6 @@
 package views;
 
-import utils.Constatns;
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
@@ -30,10 +28,12 @@ public class WithdrawCashView implements View{
 
         JTextField tfSum = new JTextField();
         tfSum.setEditable(false);
-        tfSum.setBorder(BorderFactory.createEmptyBorder());
+        tfSum.setBackground(Color.white);
+        tfSum.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         tfSum.setFont(new Font("Arial", Font.PLAIN, 80));
-        //tfMoneyAmount.setText("moneeeeyyy");
-        tfSum.setSize(500, 100);
+        //tfSum.setHorizontalAlignment(SwingConstants.CENTER);
+        //tfSum.setText("moneeeeyyy");
+        tfSum.setSize(600, 100);
         tfSum.setLocation((jpane.getWidth() - tfSum.getWidth()) / 2,caption.getY() + caption.getHeight() + 70);
         jpane.add(tfSum);
 

@@ -64,6 +64,7 @@ public class Session {
     };
 
     private ActionListener transfer = e -> {
+        changeView(new TransferView(jpane, listeners));
     };
 
     private ActionListener finish = e -> {
