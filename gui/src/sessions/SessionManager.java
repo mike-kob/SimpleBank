@@ -3,6 +3,7 @@ package sessions;
 import utils.LocationHelper;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class SessionManager {
 
@@ -17,6 +18,7 @@ public class SessionManager {
     private static void initSleepWindow(){
         JButton start = new JButton("Start");
         start.setSize(160, 80);
+        start.setFont(new Font("Arial", Font.PLAIN, 20));
         start.setVisible(true);
         start.setLocation(LocationHelper.centerLocation(jpane, start));
         start.addActionListener(e -> {
