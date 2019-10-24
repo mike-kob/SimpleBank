@@ -1,10 +1,8 @@
 package sessions;
 
 import ATM.ATM;
-import views.EnterPinView;
-import views.ReadCardView;
-import views.OptionsView;
-import views.View;
+import views.*;
+
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
@@ -41,6 +39,8 @@ public class Session {
         listeners.put("view_balance_button", view_balance);
         listeners.put("transfer_button", transfer);
         listeners.put("finish_button", finish);
+        listeners.put("confirm_new_pin_button", confirm_new_pin);
+        listeners.put("confirm_withdrawal_button", confirm_withdrawal);
     }
 
     private ActionListener proceed_enter_card = e -> {
@@ -52,20 +52,34 @@ public class Session {
     };
 
     private ActionListener cancel = e -> {
+        changeView(new EnterPinView(jpane, listeners));
     };
 
     private ActionListener change_pin = e -> {
+        changeView(new ChangePinView(jpane, listeners));
     };
 
     private ActionListener withdraw_cash = e -> {
+        changeView(new WithdrawCashView(jpane, listeners));
     };
 
     private ActionListener view_balance = e -> {
+        changeView(new DisplayBalanceView(jpane, listeners));
     };
 
     private ActionListener transfer = e -> {
+        changeView(new TransferView(jpane, listeners));
     };
 
     private ActionListener finish = e -> {
+        changeView(new ReadCardView(jpane, listeners));
+    };
+
+    private ActionListener confirm_new_pin = e -> {
+        changeView(new EnterPinView(jpane, listeners));
+    };
+
+    private ActionListener confirm_withdrawal = e -> {
+        changeView(new EnterPinView(jpane, listeners));
     };
 }

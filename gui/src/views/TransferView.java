@@ -1,37 +1,61 @@
 package views;
 
-import utils.Constatns;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 
-public class EnterPinView implements View{
+public class TransferView implements View{
     private final JLayeredPane jpane;
     private final HashMap<String, ActionListener> listeners;
 
-    public EnterPinView(JLayeredPane jp, HashMap<String, ActionListener> listeners) {
+    public TransferView(JLayeredPane jp, HashMap<String, ActionListener> listeners) {
         this.jpane = jp;
         this.listeners = listeners;
     }
 
     @Override
     public void init() {
-        JLabel caption = new JLabel("Enter your PIN-code:");
-        caption.setFont(Constatns.TITLE_FONT);
-        caption.setHorizontalAlignment(SwingConstants.CENTER);
-        caption.setSize(700, 400);
-        int cx = (jpane.getWidth() - caption.getWidth()) / 2;
-        caption.setLocation(cx, 50);
-        caption.setVisible(true);
-        jpane.add(caption, 0);
+        JLabel lSum = new JLabel("Enter sum you want to transfer:");
+        lSum.setFont(new Font("Arial", Font.PLAIN, 40));
+        lSum.setHorizontalAlignment(SwingConstants.CENTER);
+        lSum.setSize(700, 50);
+        int cx = (jpane.getWidth() - lSum.getWidth()) / 2;
+        int cy = lSum.getHeight() + 40;
+        lSum.setLocation(cx, cy);
+        lSum.setVisible(true);
+        jpane.add(lSum);
 
-        JPasswordField pinField = new JPasswordField();
-        pinField.setBounds((jpane.getWidth() - caption.getWidth()) / 2 + 100,300, 500, 50);
-        pinField.setEditable(false);
-        pinField.setBackground(Color.white);
-        jpane.add(pinField);
+        JTextField tfSum = new JTextField();
+        tfSum.setEditable(true);
+        tfSum.setHorizontalAlignment(SwingConstants.CENTER);
+        tfSum.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+        tfSum.setFont(new Font("Arial", Font.PLAIN, 40));
+        //tfSum.setText("moneeeeyyy");
+        //tfSum.setBackground(null);
+        tfSum.setSize(500, 50);
+        tfSum.setLocation((jpane.getWidth() - tfSum.getWidth()) / 2,lSum.getY() + lSum.getHeight() + 20);
+        jpane.add(tfSum);
+
+        JLabel lCardNum = new JLabel("Enter receiver's card number:");
+        lCardNum.setFont(new Font("Arial", Font.PLAIN, 40));
+        lCardNum.setHorizontalAlignment(SwingConstants.CENTER);
+        lCardNum.setSize(700, 50);
+        lCardNum.setLocation((jpane.getWidth() - lCardNum.getWidth()) / 2 - 10, tfSum.getY() + tfSum.getHeight() + 40);
+        lCardNum.setVisible(true);
+        jpane.add(lCardNum);
+
+        JTextField tfCardNum = new JTextField();
+        tfCardNum.setEditable(true);
+        //tfCardNum.setBackground(null);
+        tfCardNum.setHorizontalAlignment(SwingConstants.CENTER);
+        tfCardNum.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+        tfCardNum.setFont(new Font("Arial", Font.PLAIN, 40));
+        //tfCardNum.setText("moneeeeyyy");
+        tfCardNum.setSize(500, 50);
+        tfCardNum.setLocation((jpane.getWidth() - tfSum.getWidth()) / 2,lCardNum.getY() + lCardNum.getHeight() + 20);
+        jpane.add(tfCardNum);
 
         addButtons();
 
@@ -41,9 +65,7 @@ public class EnterPinView implements View{
         int px = (jpane.getWidth() - confirm.getWidth()) / 2 - 130;
         confirm.setLocation(px, 900);
         confirm.setVisible(true);
-        //confirm.setContentAreaFilled(false);
-        //confirm.setBorder(new RoundedBorder(25));
-        confirm.addActionListener(listeners.get("confirm_pin_button"));
+        confirm.addActionListener(listeners.get("confirm_withdrawal_button"));
         jpane.add(confirm, 0);
 
         JButton cancel = new JButton("Cancel");
@@ -51,7 +73,7 @@ public class EnterPinView implements View{
         cancel.setFont(new Font("Arial", Font.PLAIN, 20));
         cancel.setLocation(px + 250, 900);
         cancel.setVisible(true);
-        cancel.addActionListener(listeners.get("finish_button"));
+        cancel.addActionListener(listeners.get("cancel_button"));
         jpane.add(cancel, 0);
         jpane.repaint();
     }
@@ -140,28 +162,5 @@ public class EnterPinView implements View{
         zero.addActionListener(listeners.get("zero_button"));
         jpane.add(zero, 0);
     }
-
-    /*private static class RoundedBorder implements Border {
-
-        private int radius;
-
-        RoundedBorder(int radius) {
-            this.radius = radius;
-        }
-
-
-        public Insets getBorderInsets(Component c) {
-            return new Insets(this.radius+1, this.radius+1, this.radius+2, this.radius);
-        }
-
-
-        public boolean isBorderOpaque() {
-            return true;
-        }
-
-
-        public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-            g.drawRoundRect(x, y, width-1, height-1, radius, radius);
-        }
-    }*/
 }
+

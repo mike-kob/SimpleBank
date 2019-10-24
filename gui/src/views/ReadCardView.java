@@ -41,6 +41,7 @@ public class ReadCardView implements View {
 
         JButton proceed = new JButton("Capture");
         proceed.setSize(160, 80);
+        proceed.setFont(new Font("Arial", Font.PLAIN, 20));
         int px = (jpane.getWidth() - proceed.getWidth()) / 2;
         int py = 900;
         proceed.setLocation(px, py);

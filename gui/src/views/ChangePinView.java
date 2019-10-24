@@ -2,36 +2,50 @@ package views;
 
 import utils.Constatns;
 import javax.swing.*;
-import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 
-public class EnterPinView implements View{
+public class ChangePinView implements View{
     private final JLayeredPane jpane;
     private final HashMap<String, ActionListener> listeners;
 
-    public EnterPinView(JLayeredPane jp, HashMap<String, ActionListener> listeners) {
+    public ChangePinView(JLayeredPane jp, HashMap<String, ActionListener> listeners) {
         this.jpane = jp;
         this.listeners = listeners;
     }
 
     @Override
     public void init() {
-        JLabel caption = new JLabel("Enter your PIN-code:");
-        caption.setFont(Constatns.TITLE_FONT);
-        caption.setHorizontalAlignment(SwingConstants.CENTER);
-        caption.setSize(700, 400);
-        int cx = (jpane.getWidth() - caption.getWidth()) / 2;
-        caption.setLocation(cx, 50);
-        caption.setVisible(true);
-        jpane.add(caption, 0);
+        JLabel captionOld = new JLabel("Enter old PIN-code:");
+        captionOld.setFont(Constatns.TITLE_FONT);
+        captionOld.setHorizontalAlignment(SwingConstants.CENTER);
+        captionOld.setSize(700, 40);
+        int cx = (jpane.getWidth() - captionOld.getWidth()) / 2;
+        int cy = captionOld.getHeight() + 40;
+        captionOld.setLocation(cx - 10, cy);
+        captionOld.setVisible(true);
+        jpane.add(captionOld);
 
-        JPasswordField pinField = new JPasswordField();
-        pinField.setBounds((jpane.getWidth() - caption.getWidth()) / 2 + 100,300, 500, 50);
-        pinField.setEditable(false);
-        pinField.setBackground(Color.white);
-        jpane.add(pinField);
+        JPasswordField pinFieldOld = new JPasswordField();
+        pinFieldOld.setBounds(cx + 100,cy + 60, 500, 50);
+        pinFieldOld.setFont(new Font("Arial", Font.PLAIN, 40));
+        pinFieldOld.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+        jpane.add(pinFieldOld);
+
+        JLabel captionNew = new JLabel("Enter new PIN-code:");
+        captionNew.setFont(Constatns.TITLE_FONT);
+        captionNew.setHorizontalAlignment(SwingConstants.CENTER);
+        captionNew.setBounds(cx, pinFieldOld.getHeight() + pinFieldOld.getY() + 30, 700, 40);
+        captionNew.setVisible(true);
+        jpane.add(captionNew);
+
+        JPasswordField pinFieldNew = new JPasswordField();
+        pinFieldNew.setFont(new Font("Arial", Font.PLAIN, 40));
+        pinFieldNew.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+        pinFieldNew.setBounds(cx + 100,captionNew.getY() + captionNew.getHeight() + 30, 500, 50);
+        jpane.add(pinFieldNew, 0);
 
         addButtons();
 
@@ -41,9 +55,7 @@ public class EnterPinView implements View{
         int px = (jpane.getWidth() - confirm.getWidth()) / 2 - 130;
         confirm.setLocation(px, 900);
         confirm.setVisible(true);
-        //confirm.setContentAreaFilled(false);
-        //confirm.setBorder(new RoundedBorder(25));
-        confirm.addActionListener(listeners.get("confirm_pin_button"));
+        confirm.addActionListener(listeners.get("confirm_new_pin_button"));
         jpane.add(confirm, 0);
 
         JButton cancel = new JButton("Cancel");
@@ -51,7 +63,7 @@ public class EnterPinView implements View{
         cancel.setFont(new Font("Arial", Font.PLAIN, 20));
         cancel.setLocation(px + 250, 900);
         cancel.setVisible(true);
-        cancel.addActionListener(listeners.get("finish_button"));
+        cancel.addActionListener(listeners.get("cancel_button"));
         jpane.add(cancel, 0);
         jpane.repaint();
     }
@@ -140,28 +152,5 @@ public class EnterPinView implements View{
         zero.addActionListener(listeners.get("zero_button"));
         jpane.add(zero, 0);
     }
-
-    /*private static class RoundedBorder implements Border {
-
-        private int radius;
-
-        RoundedBorder(int radius) {
-            this.radius = radius;
-        }
-
-
-        public Insets getBorderInsets(Component c) {
-            return new Insets(this.radius+1, this.radius+1, this.radius+2, this.radius);
-        }
-
-
-        public boolean isBorderOpaque() {
-            return true;
-        }
-
-
-        public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-            g.drawRoundRect(x, y, width-1, height-1, radius, radius);
-        }
-    }*/
 }
+
