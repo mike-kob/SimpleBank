@@ -73,7 +73,7 @@ public class OptionsView implements View {
         finish.setFont(new Font("Arial", Font.PLAIN, 20));
         finish.setBounds(px + 270, 640,360, 100);
         finish.setVisible(true);
-        finish.addActionListener(listeners.get("finish_button"));
+        finish.addActionListener(listeners.get("finish_session"));
         jpane.add(finish, 0);
     }
 }

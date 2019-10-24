@@ -27,10 +27,17 @@ public class SessionManager {
         jpane.add(start,0);
     }
 
-    private static void startSession(){
+    public static void startSession(){
         jpane.removeAll();
         jpane.repaint();
         currentSession = new Session(jpane);
+    }
+
+    public static void finishSession(){
+        currentSession = null;
+        jpane.removeAll();
+        jpane.repaint();
+        initSleepWindow();
     }
 
 

@@ -41,6 +41,7 @@ public class Session {
         listeners.put("finish_button", finish);
         listeners.put("confirm_new_pin_button", confirm_new_pin);
         listeners.put("confirm_withdrawal_button", confirm_withdrawal);
+        listeners.put("finish_session", finish_session);
     }
 
     private ActionListener proceed_enter_card = e -> {
@@ -81,5 +82,9 @@ public class Session {
 
     private ActionListener confirm_withdrawal = e -> {
         changeView(new EnterPinView(jpane, listeners));
+    };
+
+    private ActionListener finish_session = e -> {
+        SessionManager.finishSession();
     };
 }
