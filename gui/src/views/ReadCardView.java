@@ -41,13 +41,28 @@ public class ReadCardView implements View {
 
         JButton proceed = new JButton("Capture");
         proceed.setSize(160, 80);
+        proceed.setFont(new Font("Arial", Font.PLAIN, 20));
         int px = (jpane.getWidth() - proceed.getWidth()) / 2;
         int py = 900;
         proceed.setLocation(px, py);
         proceed.setVisible(true);
         proceed.addActionListener(listeners.get("proceed_enter_card_button"));
         jpane.add(proceed, 0);
+
+        JTextField carnNum = new JTextField();
+        carnNum.setHorizontalAlignment(SwingConstants.CENTER);
+        carnNum.setFont(Constatns.TITLE_FONT);
+        carnNum.setSize(700, 70);
+        int ty = 1200;
+        carnNum.setLocation(cx, ty);
+        carnNum.setVisible(true);
+        carnNum.setToolTipText("Card number");
+        carnNum.getText();
+        jpane.add(carnNum, 0);
+
         jpane.repaint();
+
+
 
     }
 
