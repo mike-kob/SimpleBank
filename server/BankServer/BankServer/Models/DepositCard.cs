@@ -6,6 +6,7 @@ namespace Bank_server.Models
 {
     public class DepositCard : ICard
     {
+        private decimal _totalBalance;
         [Key]
         public long CardNum { get; set; }
         [Required]
@@ -19,7 +20,6 @@ namespace Bank_server.Models
         [Required]
         public decimal Rate { get; set; }
         [Required]
-        private decimal _totalBalance;
         public decimal TotalBalance
         {
             get => UpdateBalance() ? Balance + Balance * Rate : Balance;
@@ -29,7 +29,6 @@ namespace Bank_server.Models
         public DateTime StartDeposit { get; set; }
         [Required]
         public DateTime EndDeposit { get => new DateTime(StartDeposit.Year + 1, StartDeposit.Month, StartDeposit.Day, StartDeposit.Hour, StartDeposit.Minute, StartDeposit.Second); }
-        //property to check  if user withdraw money before the end of the deposit
         [Required]
         public bool Commission { get; set; }
         [Required]

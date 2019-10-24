@@ -18,16 +18,13 @@ namespace Bank_server.Models
         [Required]
         public decimal Limit { get; set; }
         [Required]
-        public decimal Balance
-        {
-            get => OwnMoney + Limit;
-            //set => Balance = value;
-        }
-        public decimal PercentIfDelay { get; } = 1.0m;
+        public decimal Balance => OwnMoney + Limit;
+        public decimal PercentIfDelay { get; } = 0.01m;
         public bool IsInLimit { get; set; }
         public DateTime? LimitWithdrawn { get; set; }
         public DateTime? EndLimit { get => EndLimitDate(); }
         public bool? IsLimitPaid { get; set; }
+        public decimal? MinSum { get; set; }
 
         [ForeignKey("Id")]
         public User CardUser { get; set; }
@@ -35,7 +32,6 @@ namespace Bank_server.Models
                 
         public DateTime? EndLimitDate()
         {
-            //you can replenish the account without any percent until calculated date - end of the next month
             if (LimitWithdrawn!=null)
             {
                 var y = LimitWithdrawn.Value.Year;

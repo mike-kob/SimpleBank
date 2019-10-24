@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BankServer.Migrations
 {
     [DbContext(typeof(BankServerContext))]
-    [Migration("20191014114157_Fourth")]
-    partial class Fourth
+    [Migration("20191024201834_Fifth")]
+    partial class Fifth
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -59,9 +59,6 @@ namespace BankServer.Migrations
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("EndLimit")
-                        .HasColumnType("datetime2");
-
                     b.Property<int>("Id")
                         .HasColumnType("int");
 
@@ -76,6 +73,9 @@ namespace BankServer.Migrations
 
                     b.Property<DateTime?>("LimitWithdrawn")
                         .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("MinSum")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("OwnMoney")
                         .HasColumnType("decimal(18,2)");

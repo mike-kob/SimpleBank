@@ -3,9 +3,7 @@ using BankServer.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -45,7 +43,15 @@ namespace BankServer.Controllers
                 return Forbid();
             }
         }
-        
+
+        [HttpPost]
+        [Route("~/api/startSession")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public ActionResult StartSession()
+        {
+            return Ok();
+        }
+
         [HttpPost]
         [Route("~/api/СheckingWithdraw")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -106,7 +112,7 @@ namespace BankServer.Controllers
                     {
                         card.Rate = 0m;
                         card.Commission = true;
-                        card.Balance -= amount *= card.PercentIfWithdraw;
+                        card.Balance -= amount + amount*card.PercentIfWithdraw;
                     }
                     else
                     {
@@ -160,10 +166,11 @@ namespace BankServer.Controllers
                 }
                 else if (card.Balance >= amount)
                 {
-                    var initBalance = card.OwnMoney;
+                     var initBalance = card.OwnMoney;
                      if  (!card.IsInLimit)
                      {
                         card.Limit = amount - card.OwnMoney;
+                        card.MinSum = amount / 2m;
                         card.OwnMoney = 0;
                         card.IsInLimit = true;
                         card.IsLimitPaid = false;
@@ -179,7 +186,8 @@ namespace BankServer.Controllers
                         var days = DateTime.Now.Subtract((DateTime)card.EndLimit).Days;
                         var percents = days * card.PercentIfDelay * initBalance;
                         card.Limit = amount - card.OwnMoney - percents;
-                        card.OwnMoney = 0; 
+                        card.OwnMoney = 0;
+                        if (card.Limit < 0) card.Limit = 0;
                      }
                     await _context.SaveChangesAsync();
                 }
@@ -201,7 +209,6 @@ namespace BankServer.Controllers
                 return BadRequest();
             }
             return Ok("allowed");
-            //return await ConfirmWithdraw(cardNum, "finished");
         }
 
         [HttpPost]
@@ -283,7 +290,7 @@ namespace BankServer.Controllers
                     {
                         card.Rate = 0m;
                         card.Commission = true;
-                        card.Balance -= amount *= card.PercentIfWithdraw;
+                        card.Balance -= amount + amount * card.PercentIfWithdraw;
                     }
                     else
                     {
@@ -348,7 +355,14 @@ namespace BankServer.Controllers
                         card.Limit = amount - card.OwnMoney - percents;
                         card.OwnMoney = 0;
                     }
-                    _context.CheckingCard.FirstOrDefault(c => c.CardNum == cardNumTo).Balance += amount;
+                    var cardTo = _context.CreditCard.FirstOrDefault(c => c.CardNum == cardNumTo);
+                    cardTo.OwnMoney += amount;
+                    if (cardTo.IsInLimit)
+                        if (cardTo.MinSum<= amount)
+                        {
+                            cardTo.IsLimitPaid = true;
+                            cardTo.LimitWithdrawn = null;
+                        }
                     await _context.SaveChangesAsync();
                 }
                 else

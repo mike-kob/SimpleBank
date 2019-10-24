@@ -57,9 +57,6 @@ namespace BankServer.Migrations
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("EndLimit")
-                        .HasColumnType("datetime2");
-
                     b.Property<int>("Id")
                         .HasColumnType("int");
 
@@ -74,6 +71,9 @@ namespace BankServer.Migrations
 
                     b.Property<DateTime?>("LimitWithdrawn")
                         .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("MinSum")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("OwnMoney")
                         .HasColumnType("decimal(18,2)");
