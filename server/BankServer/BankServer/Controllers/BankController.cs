@@ -111,7 +111,6 @@ namespace BankServer.Controllers
                     if (DateTime.Now < card.EndDeposit)
                     {
                         card.Rate = 0m;
-                        card.Commission = true;
                         card.Balance -= amount + amount*card.PercentIfWithdraw;
                     }
                     else
@@ -173,7 +172,6 @@ namespace BankServer.Controllers
                         card.MinSum = amount / 2m;
                         card.OwnMoney = 0;
                         card.IsInLimit = true;
-                        card.IsLimitPaid = false;
                         card.LimitWithdrawn = DateTime.Now;
                      }
                      else if (card.IsInLimit && DateTime.Now <= card.EndLimit)
@@ -289,7 +287,6 @@ namespace BankServer.Controllers
                     if (DateTime.Now < card.EndDeposit)
                     {
                         card.Rate = 0m;
-                        card.Commission = true;
                         card.Balance -= amount + amount * card.PercentIfWithdraw;
                     }
                     else
@@ -340,7 +337,6 @@ namespace BankServer.Controllers
                         card.Limit = amount - card.OwnMoney;
                         card.OwnMoney = 0;
                         card.IsInLimit = true;
-                        card.IsLimitPaid = false;
                         card.LimitWithdrawn = DateTime.Now;
                     }
                     else if (card.IsInLimit && DateTime.Now <= card.EndLimit)
@@ -360,7 +356,6 @@ namespace BankServer.Controllers
                     if (cardTo.IsInLimit)
                         if (cardTo.MinSum<= amount)
                         {
-                            cardTo.IsLimitPaid = true;
                             cardTo.LimitWithdrawn = null;
                         }
                     await _context.SaveChangesAsync();
