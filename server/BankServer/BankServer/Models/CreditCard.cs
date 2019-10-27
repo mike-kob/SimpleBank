@@ -23,7 +23,6 @@ namespace Bank_server.Models
         public bool IsInLimit { get; set; }
         public DateTime? LimitWithdrawn { get; set; }
         public DateTime? EndLimit { get => EndLimitDate(); }
-        public bool? IsLimitPaid { get; set; }
         public decimal? MinSum { get; set; }
 
         [ForeignKey("Id")]
