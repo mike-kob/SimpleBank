@@ -29,8 +29,9 @@ public class EnterPinView implements View{
 
         JPasswordField pinField = new JPasswordField();
         pinField.setBounds((jpane.getWidth() - caption.getWidth()) / 2 + 100,300, 500, 50);
-        pinField.setEditable(false);
         pinField.setBackground(Color.white);
+        pinField.setFont(new Font("Arial", Font.PLAIN, 20));
+        pinField.setHorizontalAlignment(SwingConstants.CENTER);
         jpane.add(pinField);
 
         addButtons();
@@ -54,6 +55,8 @@ public class EnterPinView implements View{
         cancel.addActionListener(listeners.get("finish_session"));
         jpane.add(cancel, 0);
         jpane.repaint();
+
+        pinField.requestFocus();
     }
 
     @Override
@@ -140,28 +143,4 @@ public class EnterPinView implements View{
         zero.addActionListener(listeners.get("zero_button"));
         jpane.add(zero, 0);
     }
-
-    /*private static class RoundedBorder implements Border {
-
-        private int radius;
-
-        RoundedBorder(int radius) {
-            this.radius = radius;
-        }
-
-
-        public Insets getBorderInsets(Component c) {
-            return new Insets(this.radius+1, this.radius+1, this.radius+2, this.radius);
-        }
-
-
-        public boolean isBorderOpaque() {
-            return true;
-        }
-
-
-        public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-            g.drawRoundRect(x, y, width-1, height-1, radius, radius);
-        }
-    }*/
 }

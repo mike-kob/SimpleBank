@@ -18,7 +18,7 @@ public class ChangePinView implements View{
 
     @Override
     public void init() {
-        JLabel captionOld = new JLabel("Enter old PIN-code:");
+        JLabel captionOld = new JLabel("Enter new PIN-code:");
         captionOld.setFont(Constatns.TITLE_FONT);
         captionOld.setHorizontalAlignment(SwingConstants.CENTER);
         captionOld.setSize(700, 40);
@@ -32,17 +32,20 @@ public class ChangePinView implements View{
         pinFieldOld.setBounds(cx + 100,cy + 60, 500, 50);
         pinFieldOld.setFont(new Font("Arial", Font.PLAIN, 40));
         pinFieldOld.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+        pinFieldOld.setHorizontalAlignment(SwingConstants.CENTER);
+
         jpane.add(pinFieldOld);
 
-        JLabel captionNew = new JLabel("Enter new PIN-code:");
+        JLabel captionNew = new JLabel("Re-enter the PIN-code:");
         captionNew.setFont(Constatns.TITLE_FONT);
-        captionNew.setHorizontalAlignment(SwingConstants.CENTER);
         captionNew.setBounds(cx, pinFieldOld.getHeight() + pinFieldOld.getY() + 30, 700, 40);
         captionNew.setVisible(true);
+        captionNew.setHorizontalAlignment(SwingConstants.CENTER);
         jpane.add(captionNew);
 
         JPasswordField pinFieldNew = new JPasswordField();
         pinFieldNew.setFont(new Font("Arial", Font.PLAIN, 40));
+        pinFieldNew.setHorizontalAlignment(SwingConstants.CENTER);
         pinFieldNew.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         pinFieldNew.setBounds(cx + 100,captionNew.getY() + captionNew.getHeight() + 30, 500, 50);
         jpane.add(pinFieldNew, 0);
@@ -66,6 +69,8 @@ public class ChangePinView implements View{
         cancel.addActionListener(listeners.get("cancel_button"));
         jpane.add(cancel, 0);
         jpane.repaint();
+
+        captionOld.requestFocus();
     }
 
     @Override
