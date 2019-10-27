@@ -30,8 +30,6 @@ namespace Bank_server.Models
         [Required]
         public DateTime EndDeposit { get => new DateTime(StartDeposit.Year + 1, StartDeposit.Month, StartDeposit.Day, StartDeposit.Hour, StartDeposit.Minute, StartDeposit.Second); }
         [Required]
-        public bool Commission { get; set; }
-        [Required]
         public decimal PercentIfWithdraw { get; } = 0.01m;
         [ForeignKey("Id")]
         public User CardUser { get; set; }
