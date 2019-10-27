@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\simple_bank\\server\\BankServer\\BankServer\\BankServer.csproj": {}
+    "C:\\Users\\Vadym\\Desktop\\BankServer\\BankServer\\BankServer.csproj": {}
   },
   "projects": {
-    "D:\\simple_bank\\server\\BankServer\\BankServer\\BankServer.csproj": {
+    "C:\\Users\\Vadym\\Desktop\\BankServer\\BankServer\\BankServer.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\simple_bank\\server\\BankServer\\BankServer\\BankServer.csproj",
+        "projectUniqueName": "C:\\Users\\Vadym\\Desktop\\BankServer\\BankServer\\BankServer.csproj",
         "projectName": "BankServer",
-        "projectPath": "D:\\simple_bank\\server\\BankServer\\BankServer\\BankServer.csproj",
+        "projectPath": "C:\\Users\\Vadym\\Desktop\\BankServer\\BankServer\\BankServer.csproj",
         "packagesPath": "C:\\Users\\Vadym\\.nuget\\packages\\",
-        "outputPath": "D:\\simple_bank\\server\\BankServer\\BankServer\\obj\\",
+        "outputPath": "C:\\Users\\Vadym\\Desktop\\BankServer\\BankServer\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackagesFallback\\",
