@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BankServer.Models;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -32,6 +33,9 @@ namespace Bank_server.Models
         [ForeignKey("Id")]
         public User CardUser { get; set; }
         public int Id { get; set; }
+        [ForeignKey("TxnId")]
+        public Transaction Txn { get; set; }
+        public int TxnId { get; set; }
 
 
         private bool UpdateBalance()

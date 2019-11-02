@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Bank_server.Models;
+using BankServer.Models;
 
 namespace BankServer.Models
 {
@@ -21,5 +22,7 @@ namespace BankServer.Models
         public DbSet<Bank_server.Models.CreditCard> CreditCard { get; set; }
 
         public DbSet<Bank_server.Models.DepositCard> DepositCard { get; set; }
+
+        public DbSet<BankServer.Models.Transaction> Transaction { get; set; }
     }
 }

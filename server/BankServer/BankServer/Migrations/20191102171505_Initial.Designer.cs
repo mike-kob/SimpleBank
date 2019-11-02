@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BankServer.Migrations
 {
     [DbContext(typeof(BankServerContext))]
-    [Migration("20191013094640_Initial")]
+    [Migration("20191102171505_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -20,6 +20,36 @@ namespace BankServer.Migrations
                 .HasAnnotation("ProductVersion", "3.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+            modelBuilder.Entity("BankServer.Models.Transaction", b =>
+                {
+                    b.Property<int>("TxnId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<long>("CardReceiver")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("CardSender")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("DatetimeOfTxn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("Success")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("TypeOfTxn")
+                        .HasColumnType("int");
+
+                    b.Property<double>("amount")
+                        .HasColumnType("float");
+
+                    b.HasKey("TxnId");
+
+                    b.ToTable("Transaction");
+                });
 
             modelBuilder.Entity("Bank_server.Models.CheckingCard", b =>
                 {
@@ -42,9 +72,14 @@ namespace BankServer.Migrations
                         .HasColumnType("nvarchar(4)")
                         .HasMaxLength(4);
 
+                    b.Property<int>("TxnId")
+                        .HasColumnType("int");
+
                     b.HasKey("CardNum");
 
                     b.HasIndex("Id");
+
+                    b.HasIndex("TxnId");
 
                     b.ToTable("CheckingCard");
                 });
@@ -85,9 +120,14 @@ namespace BankServer.Migrations
                         .HasColumnType("nvarchar(4)")
                         .HasMaxLength(4);
 
+                    b.Property<int>("TxnId")
+                        .HasColumnType("int");
+
                     b.HasKey("CardNum");
 
                     b.HasIndex("Id");
+
+                    b.HasIndex("TxnId");
 
                     b.ToTable("CreditCard");
                 });
@@ -122,9 +162,14 @@ namespace BankServer.Migrations
                     b.Property<DateTime>("StartDeposit")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("TxnId")
+                        .HasColumnType("int");
+
                     b.HasKey("CardNum");
 
                     b.HasIndex("Id");
+
+                    b.HasIndex("TxnId");
 
                     b.ToTable("DepositCard");
                 });
@@ -167,6 +212,12 @@ namespace BankServer.Migrations
                         .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("BankServer.Models.Transaction", "Txn")
+                        .WithMany()
+                        .HasForeignKey("TxnId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Bank_server.Models.CreditCard", b =>
@@ -176,6 +227,12 @@ namespace BankServer.Migrations
                         .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("BankServer.Models.Transaction", "Txn")
+                        .WithMany()
+                        .HasForeignKey("TxnId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Bank_server.Models.DepositCard", b =>
@@ -183,6 +240,12 @@ namespace BankServer.Migrations
                     b.HasOne("Bank_server.Models.User", "CardUser")
                         .WithMany()
                         .HasForeignKey("Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BankServer.Models.Transaction", "Txn")
+                        .WithMany()
+                        .HasForeignKey("TxnId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BankServer.Models;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -28,9 +29,12 @@ namespace Bank_server.Models
         [ForeignKey("Id")]
         public User CardUser { get; set; }
         public int Id { get; set; }
+        [ForeignKey("TxnId")]
+        public Transaction Txn {get; set;}
+        public int TxnId { get; set; }
 
-        //
-        public DateTime? EndLimitDate()
+    //
+    public DateTime? EndLimitDate()
         {
             //TO DO
             //you can replenish the account without any percent until calculated date - end of the next month

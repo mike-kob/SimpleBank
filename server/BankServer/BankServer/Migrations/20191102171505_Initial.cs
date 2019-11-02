@@ -11,6 +11,24 @@ namespace BankServer.Migrations
                 name: "dbo");
 
             migrationBuilder.CreateTable(
+                name: "Transaction",
+                columns: table => new
+                {
+                    TxnId = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TypeOfTxn = table.Column<int>(nullable: false),
+                    CardSender = table.Column<long>(nullable: false),
+                    CardReceiver = table.Column<long>(nullable: false),
+                    amount = table.Column<double>(nullable: false),
+                    DatetimeOfTxn = table.Column<DateTime>(nullable: false),
+                    Success = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Transaction", x => x.TxnId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "User",
                 schema: "dbo",
                 columns: table => new
@@ -37,7 +55,8 @@ namespace BankServer.Migrations
                     Pin = table.Column<string>(maxLength: 4, nullable: false),
                     Balance = table.Column<decimal>(nullable: false),
                     DateCreated = table.Column<DateTime>(nullable: false),
-                    Id = table.Column<int>(nullable: false)
+                    Id = table.Column<int>(nullable: false),
+                    TxnId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -48,6 +67,12 @@ namespace BankServer.Migrations
                         principalSchema: "dbo",
                         principalTable: "User",
                         principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CheckingCard_Transaction_TxnId",
+                        column: x => x.TxnId,
+                        principalTable: "Transaction",
+                        principalColumn: "TxnId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -65,7 +90,8 @@ namespace BankServer.Migrations
                     LimitWithdrawn = table.Column<DateTime>(nullable: true),
                     EndLimit = table.Column<DateTime>(nullable: true),
                     IsLimitPaid = table.Column<bool>(nullable: true),
-                    Id = table.Column<int>(nullable: false)
+                    Id = table.Column<int>(nullable: false),
+                    TxnId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -76,6 +102,12 @@ namespace BankServer.Migrations
                         principalSchema: "dbo",
                         principalTable: "User",
                         principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CreditCard_Transaction_TxnId",
+                        column: x => x.TxnId,
+                        principalTable: "Transaction",
+                        principalColumn: "TxnId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -91,7 +123,8 @@ namespace BankServer.Migrations
                     Rate = table.Column<decimal>(nullable: false),
                     StartDeposit = table.Column<DateTime>(nullable: false),
                     Commission = table.Column<bool>(nullable: false),
-                    Id = table.Column<int>(nullable: false)
+                    Id = table.Column<int>(nullable: false),
+                    TxnId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -103,6 +136,12 @@ namespace BankServer.Migrations
                         principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_DepositCard_Transaction_TxnId",
+                        column: x => x.TxnId,
+                        principalTable: "Transaction",
+                        principalColumn: "TxnId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -111,14 +150,29 @@ namespace BankServer.Migrations
                 column: "Id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CheckingCard_TxnId",
+                table: "CheckingCard",
+                column: "TxnId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CreditCard_Id",
                 table: "CreditCard",
                 column: "Id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CreditCard_TxnId",
+                table: "CreditCard",
+                column: "TxnId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_DepositCard_Id",
                 table: "DepositCard",
                 column: "Id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DepositCard_TxnId",
+                table: "DepositCard",
+                column: "TxnId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -135,6 +189,9 @@ namespace BankServer.Migrations
             migrationBuilder.DropTable(
                 name: "User",
                 schema: "dbo");
+
+            migrationBuilder.DropTable(
+                name: "Transaction");
         }
     }
 }
