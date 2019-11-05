@@ -1,10 +1,12 @@
 package api;
 
+import sessions.Session;
+
 public interface UserAPIInterface {
 
-    void startSession();
+    Session startSession();
 
-    void login();
+    boolean login(Session session);
 
 
 

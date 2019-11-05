@@ -1,9 +1,11 @@
 package views;
 
+import sessions.Session;
 import utils.Constatns;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 
@@ -11,10 +13,12 @@ public class ReadCardView implements View {
 
     private final JLayeredPane jpane;
     private final HashMap<String, ActionListener> listeners;
+    private final Session session;
 
-    public ReadCardView(JLayeredPane jp, HashMap<String, ActionListener> listeners) {
+    public ReadCardView(Session session, JLayeredPane jp, HashMap<String, ActionListener> listeners) {
         this.jpane = jp;
         this.listeners = listeners;
+        this.session = session;
     }
 
     @Override
@@ -59,6 +63,7 @@ public class ReadCardView implements View {
         proceed.setLocation(px, py);
         proceed.setVisible(true);
         proceed.addActionListener(listeners.get("proceed_enter_card_button"));
+        proceed.addActionListener(e -> session.setCardNum(carnNum.getText()));
         jpane.add(proceed, 0);
 
         jpane.repaint();

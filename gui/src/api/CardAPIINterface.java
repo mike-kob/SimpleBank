@@ -1,17 +1,19 @@
 package api;
 
+import sessions.Session;
+
 public interface CardAPIINterface {
 
-    double getBalance();
+    double getBalance(Session session);
 
-    void changePin(String newPin);
+    boolean changePin(Session session, String newPin);
 
-    void withdrawCash(int amount);
+    boolean withdrawCash(Session session, int amount);
 
-    void confirmWithdrawal(String txnId);
+    boolean confirmWithdrawal(Session session);
 
-    boolean exists(String cardNum);
+    boolean exists(Session session, String cardNum);
 
-    void transfer(String recepientCardNum);
+    boolean transfer(Session session, String recipientCardNum, int amount);
 
 }

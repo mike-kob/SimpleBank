@@ -1,11 +1,18 @@
 package sessions;
 
+import api.CardAPI;
+import api.CardAPIINterface;
+import api.UserAPI;
+import api.UserAPIInterface;
 import utils.LocationHelper;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class SessionManager {
+
+    private static CardAPIINterface cardAPI = new CardAPI();
+    private static UserAPIInterface userAPI = new UserAPI();
 
     private static Session currentSession = null;
     private static JLayeredPane jpane = null;
@@ -22,18 +29,24 @@ public class SessionManager {
         start.setVisible(true);
         start.setLocation(LocationHelper.centerLocation(jpane, start));
         start.addActionListener(e -> {
-            startSession();
+            Session session = userAPI.startSession();
+            if (session != null)
+                startSession(session);
+            else
+                JOptionPane.showMessageDialog(jpane, "Sorry, ATM is currently not working");
         });
         jpane.add(start,0);
     }
 
-    public static void startSession(){
+    private static void startSession(Session session){
         jpane.removeAll();
         jpane.repaint();
-        currentSession = new Session(jpane);
+        session.setJpane(jpane);
+        currentSession = session;
+        currentSession.show();
     }
 
-    public static void finishSession(){
+    static void finishSession(){
         currentSession = null;
         jpane.removeAll();
         jpane.repaint();

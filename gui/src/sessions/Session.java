@@ -1,6 +1,11 @@
 package sessions;
 
 import ATM.ATM;
+import api.CardAPI;
+import api.CardAPIINterface;
+import api.UserAPI;
+import api.UserAPIInterface;
+import utils.HttpHelper;
 import views.*;
 
 
@@ -10,17 +15,29 @@ import java.util.HashMap;
 
 public class Session {
 
+    private static CardAPIINterface cardAPI = new CardAPI();
+    private static UserAPIInterface userAPI = new UserAPI();
+
+    private String curCard = "";
+    private String curPin = "";
+
     View currentView = null;
 
     private final HashMap<String, ActionListener> listeners = new HashMap<>();
     private JLayeredPane jpane = null;
 
-    public Session(JLayeredPane jp){
+    public Session(){
         ATM atm = new ATM();
         atm.checkoutUnits(null, 100);
         initListeners();
-        this.jpane = jp;
-        changeView(new ReadCardView(jpane, listeners));
+    }
+
+    public void show() {
+        changeView(new ReadCardView(this, jpane, listeners));
+    }
+
+    public void setJpane(JLayeredPane jpane) {
+        this.jpane = jpane;
     }
 
     private void changeView(View newView){
@@ -29,6 +46,27 @@ public class Session {
         currentView = newView;
         currentView.init();
     }
+
+    public String getCardNum()
+    {
+        return curCard;
+    }
+
+    public String getCardPin()
+    {
+        return curPin;
+    }
+
+    public void setCardNum(String num)
+    {
+        curCard = num;
+    }
+
+    public void setCardPin(String pin)
+    {
+        curPin = pin;
+    }
+
 
     private void initListeners(){
         listeners.put("proceed_enter_card_button", proceed_enter_card);
@@ -45,15 +83,23 @@ public class Session {
     }
 
     private ActionListener proceed_enter_card = e -> {
-        changeView(new EnterPinView(jpane, listeners));
+        boolean accepted = cardAPI.exists(this, this.getCardNum());
+        if (accepted)
+            changeView(new EnterPinView(this, jpane, listeners));
+        else
+            JOptionPane.showMessageDialog(jpane, "Card is not valid!");
     };
 
     private ActionListener confirm_pin = e -> {
-        changeView(new OptionsView(jpane, listeners));
+        boolean accepted = userAPI.login(this);
+        if (accepted)
+            changeView(new OptionsView(jpane, listeners));
+        else
+            JOptionPane.showMessageDialog(jpane, "The PIN is incorrect.");
     };
 
     private ActionListener cancel = e -> {
-        changeView(new EnterPinView(jpane, listeners));
+        changeView(new EnterPinView(this, jpane, listeners));
     };
 
     private ActionListener change_pin = e -> {
@@ -73,15 +119,15 @@ public class Session {
     };
 
     private ActionListener finish = e -> {
-        changeView(new ReadCardView(jpane, listeners));
+        changeView(new ReadCardView(this, jpane, listeners));
     };
 
     private ActionListener confirm_new_pin = e -> {
-        changeView(new EnterPinView(jpane, listeners));
+        changeView(new EnterPinView(this, jpane, listeners));
     };
 
     private ActionListener confirm_withdrawal = e -> {
-        changeView(new EnterPinView(jpane, listeners));
+        changeView(new EnterPinView(this, jpane, listeners));
     };
 
     private ActionListener finish_session = e -> {

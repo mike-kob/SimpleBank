@@ -1,34 +1,61 @@
 package api;
 
+import org.json.JSONObject;
 import sessions.Session;
+import utils.Constatns;
+import utils.HttpHelper;
 
 public class CardAPI implements CardAPIINterface {
 
-    public CardAPI(Session session) {
-
+    public double getBalance(Session session)
+    {
+        JSONObject response = HttpHelper.Get(Constatns.BALANCE_URL + session.getCardNum());
+        if (response != null && response.getBoolean("Ok")) {
+            return response.getDouble("balance");
+        } else {
+            return -1;
+        }
     }
 
-    public double getBalance() {
-        return 0;
+    public boolean changePin(Session session, String newPin) {
+        JSONObject data = new JSONObject();
+        data.put("card_num", session.getCardNum());
+        data.put("old_pin", session.getCardPin());
+        data.put("new_pin", newPin);
+
+        JSONObject response = HttpHelper.Put(Constatns.CHANGE_PIN_URL, data);
+        return  (response != null && response.getBoolean("Ok"));
     }
 
-    public void changePin(String newPin) {
+    public boolean withdrawCash(Session session, int amount) {
+        JSONObject data = new JSONObject();
+        data.put("card_num", session.getCardNum());
+        data.put("amount", amount);
 
+        JSONObject response = HttpHelper.Post(Constatns.WITHDRAW_URL, data);
+        return  (response != null && response.getBoolean("Ok"));
     }
 
-    public void withdrawCash(int amount) {
+    public boolean confirmWithdrawal(Session session) {
+        JSONObject data = new JSONObject();
+        data.put("card_num", session.getCardNum());
 
+        JSONObject response = HttpHelper.Post(Constatns.CONFIRM_WITHDRAW_URL, data);
+        return  (response != null && response.getBoolean("Ok"));
     }
 
-    public void confirmWithdrawal(String txnId) {
-
+    public boolean exists(Session session, String cardNum) {
+        JSONObject response = HttpHelper.Get(Constatns.CARD_EXISTS_URL + session.getCardNum());
+        return  (response != null && response.getBoolean("Ok") && response.getBoolean("is_valid"));
     }
 
-    public boolean exists(String cardNum) {
-        return false;
-    }
+    public boolean transfer(Session session, String recipientCardNum, int amount) {
+        JSONObject data = new JSONObject();
+        data.put("card_num_from", session.getCardNum());
+        data.put("card_num_to", recipientCardNum);
+        data.put("amount", amount);
 
-    public void transfer(String recepientCardNum) {
-
+        JSONObject response = HttpHelper.Post(Constatns.TRANSFER_URL, data);
+        return  (response != null && response.getBoolean("Ok"));
     }
 }

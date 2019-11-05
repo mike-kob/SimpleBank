@@ -1,19 +1,24 @@
 package views;
 
+import sessions.Session;
 import utils.Constatns;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class EnterPinView implements View{
     private final JLayeredPane jpane;
     private final HashMap<String, ActionListener> listeners;
+    private JPasswordField password;
+    private final Session session;
 
-    public EnterPinView(JLayeredPane jp, HashMap<String, ActionListener> listeners) {
+    public EnterPinView(Session session, JLayeredPane jp, HashMap<String, ActionListener> listeners) {
         this.jpane = jp;
         this.listeners = listeners;
+        this.session = session;
     }
 
     @Override
@@ -33,7 +38,7 @@ public class EnterPinView implements View{
         pinField.setFont(new Font("Arial", Font.PLAIN, 20));
         pinField.setHorizontalAlignment(SwingConstants.CENTER);
         jpane.add(pinField);
-
+        this.password = pinField;
         addButtons();
 
         JButton confirm = new JButton("Confirm");
@@ -45,6 +50,7 @@ public class EnterPinView implements View{
         //confirm.setContentAreaFilled(false);
         //confirm.setBorder(new RoundedBorder(25));
         confirm.addActionListener(listeners.get("confirm_pin_button"));
+        confirm.addActionListener(e -> this.session.setCardPin(pinField.getText()));
         jpane.add(confirm, 0);
 
         JButton cancel = new JButton("Cancel");
@@ -67,80 +73,55 @@ public class EnterPinView implements View{
 
     private void addButtons()
     {
-        JButton one = new JButton("1");
-        one.setSize(90, 90);
-        one.setFont(new Font("Arial", Font.PLAIN, 50));
-        int px = (jpane.getWidth() - one.getWidth()) / 2 - 120;
-        one.setLocation(px, 400);
-        one.setVisible(true);
-        one.addActionListener(listeners.get("one_button"));
-        jpane.add(one, 0);
+        int width = 90;
+        int height = 90;
+        int px = (jpane.getWidth() - width) / 2 - 120;
 
-        JButton two = new JButton("2");
-        two.setSize(90, 90);
-        two.setFont(new Font("Arial", Font.PLAIN, 50));
-        two.setLocation(px + 115, 400);
-        two.setVisible(true);
-        two.addActionListener(listeners.get("two_button"));
-        jpane.add(two, 0);
+        Rectangle r1 = new Rectangle(px, 400, width,height);
+        addButton("1", r1);
 
-        JButton three = new JButton("3");
-        three.setSize(90, 90);
-        three.setFont(new Font("Arial", Font.PLAIN, 50));
-        three.setLocation(px + 230, 400);
-        three.setVisible(true);
-        three.addActionListener(listeners.get("three_button"));
-        jpane.add(three, 0);
+        Rectangle r2 = new Rectangle(px + 115, 400, width, height);
+        addButton("2", r2);
 
-        JButton four = new JButton("4");
-        four.setSize(90, 90);
-        four.setFont(new Font("Arial", Font.PLAIN, 50));
-        four.setLocation(px, 515);
-        four.setVisible(true);
-        four.addActionListener(listeners.get("four_button"));
-        jpane.add(four, 0);
+        Rectangle r3 = new Rectangle(px + 230, 400, width, height);
+        addButton("3", r3);
 
-        JButton five = new JButton("5");
-        five.setBounds(px + 115, 515,90, 90);
-        five.setFont(new Font("Arial", Font.PLAIN, 50));
-        five.setVisible(true);
-        five.addActionListener(listeners.get("five_button"));
-        jpane.add(five, 0);
+        Rectangle r4 = new Rectangle(px, 515, width, height);
+        addButton("4", r4);
 
-        JButton six = new JButton("6");
-        six.setBounds(px + 230, 515, 90, 90);
-        six.setFont(new Font("Arial", Font.PLAIN, 50));
-        six.setVisible(true);
-        six.addActionListener(listeners.get("six_button"));
-        jpane.add(six, 0);
+        Rectangle r5 = new Rectangle(px + 115, 515, width, height);
+        addButton("5", r5);
 
-        JButton seven = new JButton("7");
-        seven.setBounds(px, 630, 90, 90);
-        seven.setFont(new Font("Arial", Font.PLAIN, 50));
-        seven.setLocation(px, 630);
-        seven.setVisible(true);
-        seven.addActionListener(listeners.get("seven_button"));
-        jpane.add(seven, 0);
+        Rectangle r6 = new Rectangle(px + 230, 515, width, height);
+        addButton("6", r6);
 
-        JButton eight = new JButton("8");
-        eight.setBounds(px + 115, 630, 90, 90);
-        eight.setFont(new Font("Arial", Font.PLAIN, 50));
-        eight.setVisible(true);
-        eight.addActionListener(listeners.get("eight_button"));
-        jpane.add(eight, 0);
+        Rectangle r7 = new Rectangle(px, 630, width, height);
+        addButton("7", r7);
 
-        JButton nine = new JButton("9");
-        nine.setBounds(px + 230, 630, 90, 90);
-        nine.setFont(new Font("Arial", Font.PLAIN, 50));
-        nine.setVisible(true);
-        nine.addActionListener(listeners.get("nine_button"));
-        jpane.add(nine, 0);
+        Rectangle r8 = new Rectangle(px + 115, 630, width, height);
+        addButton("8", r8);
 
-        JButton zero = new JButton("0");
-        zero.setBounds(px + 115, 745,90, 90);
-        zero.setFont(new Font("Arial", Font.PLAIN, 50));
-        zero.setVisible(true);
-        zero.addActionListener(listeners.get("zero_button"));
-        jpane.add(zero, 0);
+        Rectangle r9 = new Rectangle(px + 230, 630, width, height);
+        addButton("9", r9);
+
+        Rectangle r0 = new Rectangle(px + 115, 745, width, height);
+        addButton("0", r0);
+
+        jpane.repaint();
+    }
+
+    private void addButton(String text, Rectangle bounds) {
+        JButton button = new JButton(text);
+        button.setFont(Constatns.DIGIT_FONT);
+        button.setBounds(bounds);
+        button.setVisible(true);
+        button.addActionListener(e -> addDigit(text));
+        jpane.add(button, 0);
+    }
+
+    private void addDigit(String digit) {
+        String cur = this.password.getText();
+        this.password.setText(cur + digit);
+        jpane.repaint();
     }
 }
