@@ -35,7 +35,9 @@ public class SessionManager {
             else
                 JOptionPane.showMessageDialog(jpane, "Sorry, ATM is currently not working");
         });
-        jpane.add(start,0);
+
+        jpane.add(start, 0);
+
     }
 
     private static void startSession(Session session){

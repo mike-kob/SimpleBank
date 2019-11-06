@@ -8,6 +8,7 @@ public class Constatns {
 
     public static Font TITLE_FONT = new Font("Calibri", Font.PLAIN, 42);
     public static Font DIGIT_FONT = new Font("Arial", Font.PLAIN, 50);
+    public static Font BUTTON_FONT = new Font("Arial", Font.PLAIN, 20);
 
     public static String HOST = "http://localhost:5000/";
     public static String WITHDRAW_URL = HOST + "api/withdraw/";

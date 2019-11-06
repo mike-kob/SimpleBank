@@ -1,19 +1,26 @@
 package views;
 
+import api.CardAPI;
+import sessions.Session;
 import utils.Constatns;
+import utils.HttpHelper;
+
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 
 public class ChangePinView implements View{
     private final JLayeredPane jpane;
     private final HashMap<String, ActionListener> listeners;
+    private final Session session;
 
-    public ChangePinView(JLayeredPane jp, HashMap<String, ActionListener> listeners) {
+    public ChangePinView(Session session, JLayeredPane jp, HashMap<String, ActionListener> listeners) {
         this.jpane = jp;
         this.listeners = listeners;
+        this.session = session;
     }
 
     @Override
@@ -58,12 +65,24 @@ public class ChangePinView implements View{
         int px = (jpane.getWidth() - confirm.getWidth()) / 2 - 130;
         confirm.setLocation(px, 900);
         confirm.setVisible(true);
-        confirm.addActionListener(listeners.get("confirm_new_pin_button"));
+        confirm.addActionListener(e -> {
+            if (!pinFieldOld.getText().equals(pinFieldNew.getText())) {
+                JOptionPane.showMessageDialog(jpane, "PIN-codes don't match");
+                pinFieldOld.setText("");
+                pinFieldNew.setText("");
+            } else {
+                boolean succes = this.session.getCardAPIClient().changePin(this.session, pinFieldNew.getText());
+                if (!succes)
+                    JOptionPane.showMessageDialog(jpane, "Error occurred");
+                else
+                    this.session.goToPin();
+            }
+        });
         jpane.add(confirm, 0);
 
         JButton cancel = new JButton("Cancel");
         cancel.setSize(160, 80);
-        cancel.setFont(new Font("Arial", Font.PLAIN, 20));
+        cancel.setFont(Constatns.BUTTON_FONT);
         cancel.setLocation(px + 250, 900);
         cancel.setVisible(true);
         cancel.addActionListener(listeners.get("cancel_button"));

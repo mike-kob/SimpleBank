@@ -15,8 +15,8 @@ import java.util.HashMap;
 
 public class Session {
 
-    private static CardAPIINterface cardAPI = new CardAPI();
-    private static UserAPIInterface userAPI = new UserAPI();
+    private CardAPIINterface cardAPI = new CardAPI();
+    private UserAPIInterface userAPI = new UserAPI();
 
     private String curCard = "";
     private String curPin = "";
@@ -27,10 +27,12 @@ public class Session {
     private JLayeredPane jpane = null;
 
     public Session(){
-        ATM atm = new ATM();
-        atm.checkoutUnits(null, 100);
         initListeners();
     }
+
+    public CardAPIINterface getCardAPIClient() { return cardAPI;}
+
+    public UserAPIInterface getUserAPIClient() { return userAPI;}
 
     public void show() {
         changeView(new ReadCardView(this, jpane, listeners));
@@ -45,6 +47,10 @@ public class Session {
             currentView.disposeView();
         currentView = newView;
         currentView.init();
+    }
+
+    public void goToPin() {
+        changeView(new EnterPinView(this, jpane, listeners));
     }
 
     public String getCardNum()
@@ -82,6 +88,7 @@ public class Session {
         listeners.put("finish_session", finish_session);
     }
 
+
     private ActionListener proceed_enter_card = e -> {
         boolean accepted = cardAPI.exists(this, this.getCardNum());
         if (accepted)
@@ -103,7 +110,7 @@ public class Session {
     };
 
     private ActionListener change_pin = e -> {
-        changeView(new ChangePinView(jpane, listeners));
+        changeView(new ChangePinView(this, jpane, listeners));
     };
 
     private ActionListener withdraw_cash = e -> {
@@ -111,7 +118,7 @@ public class Session {
     };
 
     private ActionListener view_balance = e -> {
-        changeView(new DisplayBalanceView(jpane, listeners));
+        changeView(new DisplayBalanceView(this, jpane, listeners));
     };
 
     private ActionListener transfer = e -> {

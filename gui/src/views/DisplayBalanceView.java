@@ -1,5 +1,6 @@
 package views;
 
+import sessions.Session;
 import utils.Constatns;
 import javax.swing.*;
 import java.awt.*;
@@ -9,14 +10,17 @@ import java.util.HashMap;
 public class DisplayBalanceView implements View{
     private final JLayeredPane jpane;
     private final HashMap<String, ActionListener> listeners;
+    private final Session session;
 
-    public DisplayBalanceView(JLayeredPane jp, HashMap<String, ActionListener> listeners) {
+    public DisplayBalanceView(Session session, JLayeredPane jp, HashMap<String, ActionListener> listeners) {
         this.jpane = jp;
         this.listeners = listeners;
+        this.session = session;
     }
 
     @Override
     public void init() {
+        double balance = this.session.getCardAPIClient().getBalance(this.session);
         JLabel lBalance = new JLabel("Your balance");
         lBalance.setFont(new Font("Arial", Font.PLAIN, 100));
         lBalance.setHorizontalAlignment(SwingConstants.CENTER);
@@ -27,7 +31,7 @@ public class DisplayBalanceView implements View{
         lBalance.setVisible(true);
         jpane.add(lBalance);
 
-        JLabel lYourMoney = new JLabel("Your money:");
+        JLabel lYourMoney = new JLabel("Your money:" + balance);
         lYourMoney.setFont(new Font("Arial", Font.PLAIN, 60));
         lYourMoney.setHorizontalAlignment(SwingConstants.CENTER);
         lYourMoney.setBounds(300, lBalance.getY() + lBalance.getHeight() + 60, 700, 70);
