@@ -5,11 +5,44 @@ import utils.Constatns;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.HashMap;
 
 public class OptionsView implements View {
     private final JLayeredPane jpane;
     private final HashMap<String, ActionListener> listeners;
+
+    private JButton changePin, withdrawCash, viewBalance, transfer, finish;
+
+    private KeyListener keyListener = new KeyListener() {
+        @Override
+        public void keyTyped(KeyEvent e) {
+
+        }
+
+        @Override
+        public void keyPressed(KeyEvent e) {
+            if (e.getKeyCode() == KeyEvent.VK_NUMPAD1) {
+                changePin.doClick();
+            } else if (e.getKeyCode() == KeyEvent.VK_NUMPAD2) {
+                withdrawCash.doClick();
+            } else if (e.getKeyCode() == KeyEvent.VK_NUMPAD3) {
+                viewBalance.doClick();
+            } else if (e.getKeyCode() == KeyEvent.VK_NUMPAD4) {
+                transfer.doClick();
+            } else if (e.getKeyCode() == Constatns.CANCEL_KEY) {
+                finish.doClick();
+            }
+
+
+        }
+
+        @Override
+        public void keyReleased(KeyEvent e) {
+
+        }
+    };
 
     public OptionsView(JLayeredPane jp, HashMap<String, ActionListener> listeners) {
         this.jpane = jp;
@@ -34,15 +67,16 @@ public class OptionsView implements View {
 
     @Override
     public void disposeView() {
+        jpane.removeKeyListener(keyListener);
         jpane.removeAll();
         jpane.repaint();
     }
 
-    private void addOptions(){
+    private void addOptions() {
         int winY = jpane.getHeight();
         Dimension bSize = new Dimension(300, 70);
 
-        JButton changePin = new JButton("Change PIN");
+        changePin = new JButton("1: Change PIN");
         changePin.setSize(bSize);
         changePin.setFont(new Font("Arial", Font.PLAIN, 20));
         int px = 0;
@@ -51,7 +85,7 @@ public class OptionsView implements View {
         changePin.addActionListener(listeners.get("change_pin_button"));
         jpane.add(changePin, 0);
 
-        JButton withdrawCash = new JButton("Withdraw cash");
+        withdrawCash = new JButton("2: Withdraw cash");
         withdrawCash.setFont(new Font("Arial", Font.PLAIN, 20));
         withdrawCash.setFont(new Font("Arial", Font.PLAIN, 20));
         withdrawCash.setSize(bSize);
@@ -60,13 +94,12 @@ public class OptionsView implements View {
         if (Constatns.VIRTUAL) {
             withdrawCash.setToolTipText("Sorry, withdrawal doesn't work on virtual ATM");
             withdrawCash.setEnabled(false);
-        }
-        else {
+        } else {
             withdrawCash.addActionListener(listeners.get("withdraw_cash_button"));
         }
         jpane.add(withdrawCash, 0);
 
-        JButton viewBalance = new JButton("View balance");
+        viewBalance = new JButton("3: View balance");
         viewBalance.setFont(new Font("Arial", Font.PLAIN, 20));
         viewBalance.setSize(bSize);
         viewBalance.setLocation(px, (int) (winY * 0.6));
@@ -74,7 +107,7 @@ public class OptionsView implements View {
         viewBalance.addActionListener(listeners.get("view_balance_button"));
         jpane.add(viewBalance, 0);
 
-        JButton transfer = new JButton("Transfer money");
+        transfer = new JButton("4: Transfer money");
         transfer.setFont(new Font("Arial", Font.PLAIN, 20));
         transfer.setSize(bSize);
         transfer.setLocation(jpane.getWidth() - transfer.getWidth(), (int) (winY * 0.6));
@@ -82,12 +115,14 @@ public class OptionsView implements View {
         transfer.addActionListener(listeners.get("transfer_button"));
         jpane.add(transfer, 0);
 
-        JButton finish = new JButton("Finish");
+        finish = new JButton("Finish");
         finish.setFont(new Font("Arial", Font.PLAIN, 20));
         finish.setSize(bSize);
-        finish.setLocation((jpane.getWidth() - finish.getWidth())/2, (int)(winY * 0.8));
+        finish.setLocation((jpane.getWidth() - finish.getWidth()) / 2, (int) (winY * 0.8));
         finish.setVisible(true);
         finish.addActionListener(listeners.get("finish_session"));
         jpane.add(finish, 0);
+        jpane.requestFocus();
+        jpane.addKeyListener(keyListener);
     }
 }

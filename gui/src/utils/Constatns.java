@@ -21,6 +21,7 @@ public class Constatns {
     public static String START_SESSION_URL = "api/startSession/";
     public static String LOGIN_URL = "api/login/";
 
+    public static int CANCEL_KEY = 27;
 
 
 }

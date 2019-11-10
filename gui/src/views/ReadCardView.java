@@ -1,5 +1,6 @@
 package views;
 
+import jdk.nashorn.internal.scripts.JO;
 import sessions.Session;
 import utils.Constatns;
 import utils.LocationHelper;
@@ -8,6 +9,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.HashMap;
 
 public class ReadCardView implements View {
@@ -15,6 +18,8 @@ public class ReadCardView implements View {
     private final JLayeredPane jpane;
     private final HashMap<String, ActionListener> listeners;
     private final Session session;
+
+    private JButton proceed;
 
     public ReadCardView(Session session, JLayeredPane jp, HashMap<String, ActionListener> listeners) {
         this.jpane = jp;
@@ -44,9 +49,10 @@ public class ReadCardView implements View {
         carnNum.setVisible(true);
         carnNum.setToolTipText("Card number");
         carnNum.getText();
+        carnNum.addKeyListener(la);
         jpane.add(carnNum, 0);
 
-        JButton proceed = new JButton("Enter");
+        proceed = new JButton("Enter");
         proceed.setSize(160, 80);
         proceed.setFont(new Font("Arial", Font.PLAIN, 20));
         int px = (jpane.getWidth() - proceed.getWidth()) / 2;
@@ -63,6 +69,23 @@ public class ReadCardView implements View {
 
 
     }
+
+    private KeyListener la = new KeyListener() {
+        @Override
+        public void keyTyped(KeyEvent e) {
+        }
+
+        @Override
+        public void keyPressed(KeyEvent e) {
+            if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                proceed.doClick();
+            }
+        }
+
+        @Override
+        public void keyReleased(KeyEvent e) {
+        }
+    };
 
     @Override
     public void disposeView() {
