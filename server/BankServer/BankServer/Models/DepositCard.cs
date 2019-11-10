@@ -20,16 +20,13 @@ namespace Bank_server.Models
         [Required]
         public decimal Rate { get; set; }
         [Required]
-        public decimal TotalBalance => UpdateBalance() ? Balance + Balance * Rate : Balance;
+        public decimal TotalBalance { get; set; }
         [Required]
         public DateTime StartDeposit { get; set; }
         [Required]
         public DateTime EndDeposit { get => new DateTime(StartDeposit.Year + 1, StartDeposit.Month, StartDeposit.Day, StartDeposit.Hour, StartDeposit.Minute, StartDeposit.Second); }
-        //property to check  if user withdraw money before the end of the deposit
         [Required]
-        public bool Commission { get; set; }
-        [Required]
-        public double PercentIfWithdraw { get; } = 1.0;
+        public decimal Commission  { get; } = 0.01m;
         [ForeignKey("Id")]
         public User CardUser { get; set; }
         public int Id { get; set; }
@@ -37,11 +34,9 @@ namespace Bank_server.Models
         public Transaction Txn { get; set; }
         public int TxnId { get; set; }
 
-
-        private bool UpdateBalance()
+        public bool UpdateBalance()
         {
-            //code to check if we need to add bonus
-            return false;
+            return EndDeposit <= DateTime.Now;
         }
     }
 }

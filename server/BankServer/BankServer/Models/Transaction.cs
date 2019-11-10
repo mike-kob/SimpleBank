@@ -17,7 +17,7 @@ namespace BankServer.Models
 
         public long CardReceiver { get; set; }
         [Required]
-        public double amount { get; set; }
+        public decimal Amount { get; set; }
         [Required]
         public DateTime DatetimeOfTxn { get; set; }
         [Required]

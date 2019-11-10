@@ -1,26 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "D:\\simple_bank\\server\\BankServer\\BankServer\\BankServer.csproj": {}
+    "D:\\vs\\Repos\\simple_bank\\server\\BankServer\\BankServer\\BankServer.csproj": {}
   },
   "projects": {
-    "D:\\simple_bank\\server\\BankServer\\BankServer\\BankServer.csproj": {
+    "D:\\vs\\Repos\\simple_bank\\server\\BankServer\\BankServer\\BankServer.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\simple_bank\\server\\BankServer\\BankServer\\BankServer.csproj",
+        "projectUniqueName": "D:\\vs\\Repos\\simple_bank\\server\\BankServer\\BankServer\\BankServer.csproj",
         "projectName": "BankServer",
-        "projectPath": "D:\\simple_bank\\server\\BankServer\\BankServer\\BankServer.csproj",
-        "packagesPath": "C:\\Users\\Vadym\\.nuget\\packages\\",
-        "outputPath": "D:\\simple_bank\\server\\BankServer\\BankServer\\obj\\",
+        "projectPath": "D:\\vs\\Repos\\simple_bank\\server\\BankServer\\BankServer\\BankServer.csproj",
+        "packagesPath": "C:\\Users\\mtyut\\.nuget\\packages\\",
+        "outputPath": "D:\\vs\\Repos\\simple_bank\\server\\BankServer\\BankServer\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackagesFallback\\",
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
         ],
         "configFilePaths": [
-          "C:\\Users\\Vadym\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.Fallback.config"
+          "C:\\Users\\mtyut\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "netcoreapp3.0"

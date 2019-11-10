@@ -19,13 +19,11 @@ namespace Bank_server.Models
         [Required]
         public decimal Limit { get; set; }
         [Required]
-        public decimal Balance { get; }
-        public double PercentIfDelay { get; } = 1.0;
+        public decimal Balance => OwnMoney + Limit;
+        public decimal PercentIfDelay { get; } = 0.01m;
         public bool IsInLimit { get; set; }
         public DateTime? LimitWithdrawn { get; set; }
-        public DateTime? EndLimit { get; set; }
-        public bool? IsLimitPaid { get; set; }
-
+        public DateTime? EndLimit { get => EndLimitDate(); }
         [ForeignKey("Id")]
         public User CardUser { get; set; }
         public int Id { get; set; }

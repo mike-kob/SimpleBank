@@ -218,3 +218,11 @@ D:\simple_bank\server\BankServer\BankServer\obj\Debug\netcoreapp3.0\BankServer.c
 D:\simple_bank\server\BankServer\BankServer\obj\Debug\netcoreapp3.0\BankServer.dll
 D:\simple_bank\server\BankServer\BankServer\obj\Debug\netcoreapp3.0\BankServer.pdb
 D:\simple_bank\server\BankServer\BankServer\obj\Debug\netcoreapp3.0\BankServer.csprojAssemblyReference.cache
+D:\vs\Repos\simple_bank\server\BankServer\BankServer\obj\Debug\netcoreapp3.0\BankServer.csprojAssemblyReference.cache
+D:\vs\Repos\simple_bank\server\BankServer\BankServer\obj\Debug\netcoreapp3.0\staticwebassets\BankServer.StaticWebAssets.Manifest.cache
+D:\vs\Repos\simple_bank\server\BankServer\BankServer\obj\Debug\netcoreapp3.0\staticwebassets\BankServer.StaticWebAssets.xml
+D:\vs\Repos\simple_bank\server\BankServer\BankServer\obj\Debug\netcoreapp3.0\BankServer.MvcApplicationPartsAssemblyInfo.cache
+D:\vs\Repos\simple_bank\server\BankServer\BankServer\obj\Debug\netcoreapp3.0\BankServer.AssemblyInfoInputs.cache
+D:\vs\Repos\simple_bank\server\BankServer\BankServer\obj\Debug\netcoreapp3.0\BankServer.AssemblyInfo.cs
+D:\vs\Repos\simple_bank\server\BankServer\BankServer\obj\Debug\netcoreapp3.0\BankServer.dll
+D:\vs\Repos\simple_bank\server\BankServer\BankServer\obj\Debug\netcoreapp3.0\BankServer.pdb
