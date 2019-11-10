@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 namespace BankServer.Controllers
 {
     [Route("api")]
+
     [ApiController]
     public class BankController : ControllerBase
     {
@@ -136,10 +137,10 @@ namespace BankServer.Controllers
         public ActionResult StartSession()
         {
             return new OkObjectResult(new Start { Ok = true });
-        }
 
         [HttpPost]
         [Route("~/api/СheckingWithdraw")]
+
         public async Task<ActionResult<CheckingCard>> СheckingWithdraw()
         {
             var body = "";
@@ -212,7 +213,6 @@ namespace BankServer.Controllers
             {
                 return BadRequest();
             }
-
         }
 
         [HttpPost]
@@ -450,7 +450,6 @@ namespace BankServer.Controllers
                         card.Rate = 0m;
                         card.Balance -= (amount + amount * card.Commission);
                         card.TotalBalance = card.TotalBalance;
-
                     }
                     _context.DepositCard.FirstOrDefault(c => c.CardNum == cardNumTo).Balance += amount;
                     await _context.SaveChangesAsync();
@@ -523,7 +522,6 @@ namespace BankServer.Controllers
             {
                 return Unauthorized();
             }
-
             return new OkObjectResult(new Transfer { Ok = true });
         }
     }

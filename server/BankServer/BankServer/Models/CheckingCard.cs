@@ -1,4 +1,4 @@
-﻿using BankServer.Models;
+using BankServer.Models;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;

@@ -15,14 +15,15 @@ namespace BankServer.Models
         {
         }
 
-        public DbSet<Bank_server.Models.User> User { get; set; }
+        public DbSet<Transaction> Transaction { get; set; }
 
-        public DbSet<Bank_server.Models.CheckingCard> CheckingCard { get; set; }
+        public DbSet<User> User { get; set; }
 
-        public DbSet<Bank_server.Models.CreditCard> CreditCard { get; set; }
+        public DbSet<CheckingCard> CheckingCard { get; set; }
 
-        public DbSet<Bank_server.Models.DepositCard> DepositCard { get; set; }
+        public DbSet<CreditCard> CreditCard { get; set; }
 
-        public DbSet<BankServer.Models.Transaction> Transaction { get; set; }
+        public DbSet<DepositCard> DepositCard { get; set; }
+
     }
 }
