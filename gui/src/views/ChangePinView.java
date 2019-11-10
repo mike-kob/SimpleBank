@@ -25,18 +25,21 @@ public class ChangePinView implements View{
 
     @Override
     public void init() {
+        int winX = jpane.getHeight();
+
         JLabel captionOld = new JLabel("Enter new PIN-code:");
         captionOld.setFont(Constatns.TITLE_FONT);
         captionOld.setHorizontalAlignment(SwingConstants.CENTER);
         captionOld.setSize(700, 40);
         int cx = (jpane.getWidth() - captionOld.getWidth()) / 2;
-        int cy = captionOld.getHeight() + 40;
+        int cy = (int) (winX * 0.1);
         captionOld.setLocation(cx - 10, cy);
         captionOld.setVisible(true);
         jpane.add(captionOld);
 
         JPasswordField pinFieldOld = new JPasswordField();
-        pinFieldOld.setBounds(cx + 100,cy + 60, 500, 50);
+        pinFieldOld.setSize(250, 50);
+        pinFieldOld.setLocation((jpane.getWidth() - pinFieldOld.getWidth())/2,cy + pinFieldOld.getHeight() + 10);
         pinFieldOld.setFont(new Font("Arial", Font.PLAIN, 40));
         pinFieldOld.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         pinFieldOld.setHorizontalAlignment(SwingConstants.CENTER);
@@ -45,7 +48,7 @@ public class ChangePinView implements View{
 
         JLabel captionNew = new JLabel("Re-enter the PIN-code:");
         captionNew.setFont(Constatns.TITLE_FONT);
-        captionNew.setBounds(cx, pinFieldOld.getHeight() + pinFieldOld.getY() + 30, 700, 40);
+        captionNew.setBounds(cx, pinFieldOld.getHeight() + pinFieldOld.getY() + 20, 700, 40);
         captionNew.setVisible(true);
         captionNew.setHorizontalAlignment(SwingConstants.CENTER);
         jpane.add(captionNew);
@@ -54,16 +57,17 @@ public class ChangePinView implements View{
         pinFieldNew.setFont(new Font("Arial", Font.PLAIN, 40));
         pinFieldNew.setHorizontalAlignment(SwingConstants.CENTER);
         pinFieldNew.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-        pinFieldNew.setBounds(cx + 100,captionNew.getY() + captionNew.getHeight() + 30, 500, 50);
+        pinFieldNew.setBounds((jpane.getWidth() - pinFieldOld.getWidth())/2, captionNew.getY() + captionNew.getHeight() + 10, 250, 50);
         jpane.add(pinFieldNew, 0);
 
-        addButtons();
+//        addButtons();
+
 
         JButton confirm = new JButton("Confirm");
         confirm.setSize(160, 80);
         confirm.setFont(new Font("Arial", Font.PLAIN, 20));
         int px = (jpane.getWidth() - confirm.getWidth()) / 2 - 130;
-        confirm.setLocation(px, 900);
+        confirm.setLocation(px, (int) (winX * 0.8));
         confirm.setVisible(true);
         confirm.addActionListener(e -> {
             if (!pinFieldOld.getText().equals(pinFieldNew.getText())) {
@@ -83,7 +87,7 @@ public class ChangePinView implements View{
         JButton cancel = new JButton("Cancel");
         cancel.setSize(160, 80);
         cancel.setFont(Constatns.BUTTON_FONT);
-        cancel.setLocation(px + 250, 900);
+        cancel.setLocation(px + 250, (int) (winX * 0.8));
         cancel.setVisible(true);
         cancel.addActionListener(listeners.get("cancel_button"));
         jpane.add(cancel, 0);

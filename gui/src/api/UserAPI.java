@@ -9,7 +9,7 @@ public class UserAPI implements UserAPIInterface {
 
     public Session startSession() {
         JSONObject data = new JSONObject();
-        JSONObject response = HttpHelper.Post(Constatns.START_SESSION_URL, data);
+        JSONObject response = HttpHelper.Post(Constatns.HOST + Constatns.START_SESSION_URL, data);
         Session session = new Session();
 
         if (response != null && response.getBoolean("Ok")){
@@ -23,7 +23,7 @@ public class UserAPI implements UserAPIInterface {
         JSONObject data = new JSONObject();
         data.put("card_num", session.getCardNum());
         data.put("PIN", session.getCardPin());
-        JSONObject response = HttpHelper.Post(Constatns.LOGIN_URL, data);
+        JSONObject response = HttpHelper.Post(Constatns.HOST + Constatns.LOGIN_URL, data);
 
         return  (response != null && response.getBoolean("Ok"));
     }

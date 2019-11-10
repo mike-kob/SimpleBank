@@ -2,6 +2,7 @@ package views;
 
 import sessions.Session;
 import utils.Constatns;
+import utils.LocationHelper;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,22 +24,14 @@ public class ReadCardView implements View {
 
     @Override
     public void init() {
-//        JLabel video = new JLabel();
-//        video.setBackground(Color.GRAY);
-//        video.setSize(700, 400);
-//        int x = (jpane.getWidth() - video.getWidth()) / 2;
-//        int y = 20;
-//        video.setLocation(x, y);
-//        video.setVisible(true);
-//        video.setOpaque(true);
-//        jpane.add(video, 0);
+        int winY = jpane.getHeight();
 
         JLabel caption = new JLabel(Constatns.CARD_ENTER_TEXT);
         caption.setFont(Constatns.TITLE_FONT);
         caption.setHorizontalAlignment(SwingConstants.CENTER);
-        caption.setSize(900, 400);
+        caption.setSize(600, 100);
         int cx = (jpane.getWidth() - caption.getWidth()) / 2;
-        int cy = 400;
+        int cy =(int) (0.1 * winY);
         caption.setLocation(cx, cy);
         caption.setVisible(true);
         jpane.add(caption, 0);
@@ -46,10 +39,8 @@ public class ReadCardView implements View {
         JTextField carnNum = new JTextField();
         carnNum.setHorizontalAlignment(SwingConstants.CENTER);
         carnNum.setFont(Constatns.TITLE_FONT);
-        carnNum.setSize(700, 70);
-        int ty = 400;
-        int tx = (jpane.getWidth() - carnNum.getWidth()) / 2;
-        carnNum.setLocation(tx, ty);
+        carnNum.setSize(650, 70);
+        carnNum.setLocation(LocationHelper.centerLocation(jpane, carnNum));
         carnNum.setVisible(true);
         carnNum.setToolTipText("Card number");
         carnNum.getText();
@@ -59,7 +50,7 @@ public class ReadCardView implements View {
         proceed.setSize(160, 80);
         proceed.setFont(new Font("Arial", Font.PLAIN, 20));
         int px = (jpane.getWidth() - proceed.getWidth()) / 2;
-        int py = 700;
+        int py =(int) (0.7 * winY);
         proceed.setLocation(px, py);
         proceed.setVisible(true);
         proceed.addActionListener(listeners.get("proceed_enter_card_button"));

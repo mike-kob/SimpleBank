@@ -1,28 +1,34 @@
 package views;
 
+import sessions.Session;
+import utils.Constatns;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.text.ParseException;
 import java.util.HashMap;
 
 public class TransferView implements View{
     private final JLayeredPane jpane;
     private final HashMap<String, ActionListener> listeners;
+    private final Session session;
 
-    public TransferView(JLayeredPane jp, HashMap<String, ActionListener> listeners) {
+    public TransferView(Session session, JLayeredPane jp, HashMap<String, ActionListener> listeners) {
         this.jpane = jp;
         this.listeners = listeners;
+        this.session = session;
     }
 
     @Override
     public void init() {
         JLabel lSum = new JLabel("Enter sum you want to transfer:");
-        lSum.setFont(new Font("Arial", Font.PLAIN, 40));
+        lSum.setFont(Constatns.TITLE_FONT);
         lSum.setHorizontalAlignment(SwingConstants.CENTER);
-        lSum.setSize(700, 50);
+        lSum.setSize(500, 50);
         int cx = (jpane.getWidth() - lSum.getWidth()) / 2;
-        int cy = lSum.getHeight() + 40;
+        int cy = lSum.getHeight() + 10;
         lSum.setLocation(cx, cy);
         lSum.setVisible(true);
         jpane.add(lSum);
@@ -34,19 +40,20 @@ public class TransferView implements View{
         tfSum.setFont(new Font("Arial", Font.PLAIN, 40));
         //tfSum.setText("moneeeeyyy");
         //tfSum.setBackground(null);
-        tfSum.setSize(500, 50);
-        tfSum.setLocation((jpane.getWidth() - tfSum.getWidth()) / 2,lSum.getY() + lSum.getHeight() + 20);
+        tfSum.setSize(250, 50);
+        tfSum.setLocation((jpane.getWidth() - tfSum.getWidth()) / 2,lSum.getY() + lSum.getHeight() + 10);
         jpane.add(tfSum);
 
         JLabel lCardNum = new JLabel("Enter receiver's card number:");
-        lCardNum.setFont(new Font("Arial", Font.PLAIN, 40));
+        lCardNum.setFont(Constatns.TITLE_FONT);
         lCardNum.setHorizontalAlignment(SwingConstants.CENTER);
         lCardNum.setSize(700, 50);
-        lCardNum.setLocation((jpane.getWidth() - lCardNum.getWidth()) / 2 - 10, tfSum.getY() + tfSum.getHeight() + 40);
+        lCardNum.setLocation((jpane.getWidth() - lCardNum.getWidth()) / 2 - 10, tfSum.getY() + tfSum.getHeight() + 20);
         lCardNum.setVisible(true);
         jpane.add(lCardNum);
 
         JTextField tfCardNum = new JTextField();
+
         tfCardNum.setEditable(true);
         //tfCardNum.setBackground(null);
         tfCardNum.setHorizontalAlignment(SwingConstants.CENTER);
@@ -54,24 +61,45 @@ public class TransferView implements View{
         tfCardNum.setFont(new Font("Arial", Font.PLAIN, 40));
         //tfCardNum.setText("moneeeeyyy");
         tfCardNum.setSize(500, 50);
-        tfCardNum.setLocation((jpane.getWidth() - tfSum.getWidth()) / 2,lCardNum.getY() + lCardNum.getHeight() + 20);
+        tfCardNum.setLocation((jpane.getWidth() - tfCardNum.getWidth()) / 2,lCardNum.getY() + lCardNum.getHeight() + 10);
         jpane.add(tfCardNum);
 
-        addButtons();
+//        addButtons();
 
         JButton confirm = new JButton("Confirm");
         confirm.setSize(160, 80);
         confirm.setFont(new Font("Arial", Font.PLAIN, 20));
         int px = (jpane.getWidth() - confirm.getWidth()) / 2 - 130;
-        confirm.setLocation(px, 900);
+        confirm.setLocation(px, (int) (jpane.getHeight() * 0.8));
         confirm.setVisible(true);
-        confirm.addActionListener(listeners.get("confirm_withdrawal_button"));
+        confirm.addActionListener(e -> {
+            try {
+                int amount = Integer.parseInt(tfSum.getText());
+                String receiverNum = tfCardNum.getText();
+                if (this.session.getCardAPIClient().exists(this.session, receiverNum)) {
+                    boolean successful = this.session.getCardAPIClient().transfer(this.session, receiverNum, amount);
+                    if (successful) {
+                        JOptionPane.showMessageDialog(jpane, "Transfer successful!");
+                        this.session.goToPin();
+                    } else {
+                        JOptionPane.showMessageDialog(jpane, "Unable to perform the trasfer!");
+                    }
+                } else  {
+                    JOptionPane.showMessageDialog(jpane, "The card doesn't exist!");
+                }
+
+            }
+            catch (NumberFormatException pe) {
+                JOptionPane.showMessageDialog(jpane, "The amount is not valid");
+            }
+
+        });
         jpane.add(confirm, 0);
 
         JButton cancel = new JButton("Cancel");
         cancel.setSize(160, 80);
         cancel.setFont(new Font("Arial", Font.PLAIN, 20));
-        cancel.setLocation(px + 250, 900);
+        cancel.setLocation(px + 250, (int) (jpane.getHeight() * 0.8));
         cancel.setVisible(true);
         cancel.addActionListener(listeners.get("cancel_button"));
         jpane.add(cancel, 0);

@@ -1,11 +1,11 @@
 package sessions;
 
+import ATM.ATMInterface;
 import ATM.ATM;
 import api.CardAPI;
 import api.CardAPIINterface;
 import api.UserAPI;
 import api.UserAPIInterface;
-import utils.HttpHelper;
 import views.*;
 
 
@@ -17,6 +17,7 @@ public class Session {
 
     private CardAPIINterface cardAPI = new CardAPI();
     private UserAPIInterface userAPI = new UserAPI();
+    private ATMInterface atmAPI = new ATM();
 
     private String curCard = "";
     private String curPin = "";
@@ -33,6 +34,8 @@ public class Session {
     public CardAPIINterface getCardAPIClient() { return cardAPI;}
 
     public UserAPIInterface getUserAPIClient() { return userAPI;}
+
+    public ATMInterface getaATMClient() { return atmAPI;}
 
     public void show() {
         changeView(new ReadCardView(this, jpane, listeners));
@@ -73,7 +76,6 @@ public class Session {
         curPin = pin;
     }
 
-
     private void initListeners(){
         listeners.put("proceed_enter_card_button", proceed_enter_card);
         listeners.put("confirm_pin_button", confirm_pin);
@@ -85,6 +87,7 @@ public class Session {
         listeners.put("finish_button", finish);
         listeners.put("confirm_new_pin_button", confirm_new_pin);
         listeners.put("confirm_withdrawal_button", confirm_withdrawal);
+        listeners.put("confirm_transfer_button", confirm_transfer);
         listeners.put("finish_session", finish_session);
     }
 
@@ -114,7 +117,7 @@ public class Session {
     };
 
     private ActionListener withdraw_cash = e -> {
-        changeView(new WithdrawCashView(jpane, listeners));
+        changeView(new WithdrawCashView(this, jpane, listeners));
     };
 
     private ActionListener view_balance = e -> {
@@ -122,7 +125,7 @@ public class Session {
     };
 
     private ActionListener transfer = e -> {
-        changeView(new TransferView(jpane, listeners));
+        changeView(new TransferView(this, jpane, listeners));
     };
 
     private ActionListener finish = e -> {
@@ -134,6 +137,10 @@ public class Session {
     };
 
     private ActionListener confirm_withdrawal = e -> {
+        changeView(new EnterPinView(this, jpane, listeners));
+    };
+
+    private ActionListener confirm_transfer = e -> {
         changeView(new EnterPinView(this, jpane, listeners));
     };
 
