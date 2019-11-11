@@ -137,6 +137,7 @@ namespace BankServer.Controllers
         public ActionResult StartSession()
         {
             return new OkObjectResult(new Start { Ok = true });
+        }
 
         [HttpPost]
         [Route("~/api/СheckingWithdraw")]
@@ -382,6 +383,8 @@ namespace BankServer.Controllers
             }
             return new OkObjectResult(new ConfirmWithdraw { Ok = false });
         }
+        [HttpPost]
+        [Route("~/api/CheckingTransfer")]
         public async Task<ActionResult<CheckingCard>> CheckingTransfer()
         {
             var body = "";
@@ -414,7 +417,8 @@ namespace BankServer.Controllers
 
             return new OkObjectResult(new Transfer { Ok = true });
         }
-
+        [HttpPost]
+        [Route("~/api/DepositTransfer")]
         public async Task<ActionResult<DepositCard>> DepositTransfer()
         {
             var body = "";
@@ -467,7 +471,8 @@ namespace BankServer.Controllers
             return new OkObjectResult(new Transfer { Ok = true });
         }
 
-
+        [HttpPost]
+        [Route("~/api/CreditTransfer")]
         public async Task<ActionResult<CreditCard>> CreditTransfer()
         {
             var body = "";
