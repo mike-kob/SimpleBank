@@ -1,14 +1,12 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Bank_server.Models
+namespace BankServer.Models
 {
-    [Table("User", Schema = "dbo")]
     public class User
     {
         [Key]
-        public int Id { get; set; }
+        public int UserId { get; set; }
         [Required]
         [MaxLength(50)]
         public string FirstName { get; set; }
@@ -19,8 +17,5 @@ namespace Bank_server.Models
         public DateTime DateBirth { get; set; }
         [Required]
         public DateTime Created { get; set; }
-        //not sure if this property is necessary
-        [Required]
-        public int NumOfCards { get; set; }
     }
 }

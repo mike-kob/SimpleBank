@@ -1,27 +1,25 @@
-using BankServer.Models;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Bank_server.Models
+namespace BankServer.Models
 {
-    public class CheckingCard:ICard
+    [Table("CheckingCard")]
+    public class CheckingCard:Card
     {
         [Key]
-        public long CardNum { get; set; }
+        public string CardNum { get; set; }
         [Required]
         [MaxLength(4)]
         public string Pin { get; set; }
         [Required]
-        public decimal Balance { get; set; }
+        public new decimal Balance { get; set; }
         [Required]
         public DateTime DateCreated { get; set; }
-        [ForeignKey("Id")]
+        [ForeignKey("UserId")]
         public User CardUser { get; set; }
-        public int Id { get; set; }
-        [ForeignKey("TxnId")]
-        public Transaction Txn { get; set; }
-        public int TxnId { get; set; }
+        public int UserId { get; set; }
+        
 
     }
 }

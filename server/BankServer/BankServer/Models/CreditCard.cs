@@ -2,12 +2,13 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Bank_server.Models
+namespace BankServer.Models
 {
-    public class CreditCard : ICard
+    [Table("CreditCard")]
+    public class CreditCard : Card
     {
         [Key]
-        public long CardNum { get; set; }
+        public string CardNum { get; set; }
         [Required]
         [MaxLength(4)]
         public string Pin { get; set; }
@@ -25,9 +26,9 @@ namespace Bank_server.Models
         public DateTime? EndLimit { get => EndLimitDate(); }
         public decimal? MinSum { get; set; }
 
-        [ForeignKey("Id")]
+        [ForeignKey("UserId")]
         public User CardUser { get; set; }
-        public int Id { get; set; }
+        public int UserId { get; set; }
                 
         public DateTime? EndLimitDate()
         {
