@@ -7,13 +7,6 @@ namespace BankServer.Models
     [Table("DepositCard")]
     public class DepositCard : Card
     {
-        [Key]
-        public string CardNum { get; set; }
-        [Required]
-        [MaxLength(4)]
-        public string Pin { get; set; }
-        [Required]
-        public DateTime DateCreated { get; set; }
         // initial sum
         [Required]
         public new decimal Balance { get; set; }
@@ -28,10 +21,7 @@ namespace BankServer.Models
 
         [Required]
         public decimal Commission  { get; } = 0.01m;
-        [ForeignKey("UserId")]
-        public User CardUser { get; set; }
-        public int UserId { get; set; }
-        
+              
 
         public bool UpdateBalance()
         {
