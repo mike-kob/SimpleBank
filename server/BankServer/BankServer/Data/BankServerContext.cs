@@ -21,5 +21,6 @@ namespace BankServer.Data
         public DbSet<DepositCard> DepositCard { get; set; }
         public DbSet<Atm> Atm { get; set; }
 
+        public DbSet<Card> Card { get; set; }
     }
 }
