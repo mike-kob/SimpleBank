@@ -50,7 +50,6 @@ namespace BankServer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(4)")
                         .HasMaxLength(4);
-
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
@@ -93,6 +92,7 @@ namespace BankServer.Migrations
                     b.HasIndex("CardReceiverNum");
 
                     b.HasIndex("CardSenderNum");
+
 
                     b.ToTable("Transaction");
                 });
@@ -137,6 +137,7 @@ namespace BankServer.Migrations
                     b.HasDiscriminator().HasValue("CheckingCard");
                 });
 
+
             modelBuilder.Entity("BankServer.Models.CreditCard", b =>
                 {
                     b.HasBaseType("BankServer.Models.Card");
@@ -156,9 +157,10 @@ namespace BankServer.Migrations
                     b.Property<decimal>("OwnMoney")
                         .HasColumnType("decimal(18,2)");
 
-                    b.ToTable("CreditCard");
 
+                    b.ToTable("CreditCard");
                     b.HasDiscriminator().HasValue("CreditCard");
+
                 });
 
             modelBuilder.Entity("BankServer.Models.DepositCard", b =>
@@ -190,6 +192,12 @@ namespace BankServer.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("BankServer.Models.Transaction", "Txn")
+                        .WithMany()
+                        .HasForeignKey("TxnId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("BankServer.Models.Transaction", b =>
@@ -201,6 +209,7 @@ namespace BankServer.Migrations
                     b.HasOne("BankServer.Models.Card", "CardSender")
                         .WithMany()
                         .HasForeignKey("CardSenderNum");
+
                 });
 #pragma warning restore 612, 618
         }
