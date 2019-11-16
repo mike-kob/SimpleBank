@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BankServer.Migrations
 {
     [DbContext(typeof(BankServerContext))]
-    [Migration("20191114103809_Initial")]
+    [Migration("20191116163850_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -63,6 +63,29 @@ namespace BankServer.Migrations
                     b.ToTable("Card");
 
                     b.HasDiscriminator<string>("Discriminator").HasValue("Card");
+                });
+
+            modelBuilder.Entity("BankServer.Models.Token", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("CardNum")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CardToken")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Create")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Token");
                 });
 
             modelBuilder.Entity("BankServer.Models.Transaction", b =>

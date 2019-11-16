@@ -8,6 +8,10 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using BankServer.Data;
+using System.Security.Cryptography;
+using System.Text;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
 
 namespace BankServer.Controllers
 {
@@ -60,6 +64,23 @@ namespace BankServer.Controllers
         {
             public bool Ok { get; set; }
             public List<string> Errors { get; set; }
+        }
+        public class Log
+        {
+            public bool Ok { get; set; }
+            public string Token  { get; set; }
+            public List<string> Errors { get; set; }
+        }
+        public class AuthOptions
+        {
+            public const string ISSUER = "Bankiri";
+            public const string AUDIENCE = "http://localhost:51884/";
+            const string KEY = "bbbbbbbbbbbbbbbb"; 
+            public const int LIFETIME = 10;
+            public static SymmetricSecurityKey GetSymmetricSecurityKey()
+            {
+                return new SymmetricSecurityKey(Encoding.ASCII.GetBytes(KEY));
+            }
         }
 
         [HttpGet("cardExists/{id}")]
@@ -132,15 +153,16 @@ namespace BankServer.Controllers
             string cardNum = myObject["cardNum"];
             string oldPin = myObject["oldPin"];
             string newPin = myObject["newPin"];
-
+            var accessToken = Request.Headers["Authorization"];
             try
             {
+                Token token = _context.Token.FirstOrDefault(c => c.CardNum == cardNum);
                 Card card = _context.Card.FirstOrDefault(c => c.CardNum == cardNum);
                 if (card == null)
                 {
                     return new OkObjectResult(new { Ok = false, Allowed = false, Errors = new[] { "Card doesn't exist" } });
                 }
-                else if (card.Pin == oldPin)
+                else if (card.Pin == oldPin && token.CardToken==accessToken)
                 {
                     card.Pin = newPin;
                     await _context.SaveChangesAsync();
@@ -178,6 +200,7 @@ namespace BankServer.Controllers
             var myObject = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(body);
             string cardNum = Convert.ToString(myObject.cardNum);
             decimal amount = Convert.ToDecimal(myObject.amount);
+            var accessToken = Request.Headers["Authorization"];
             try
             {
                 if (_context.CheckingCard.FirstOrDefault(c => c.CardNum == cardNum) != null)
@@ -335,7 +358,6 @@ namespace BankServer.Controllers
             return new OkObjectResult(new ConfirmWithdrawResult { Ok = false });
         }
 
-
         [HttpPost]
         [Route("~/api/Transfer")]
         public async Task<ActionResult<Card>> Transfer()
@@ -350,133 +372,196 @@ namespace BankServer.Controllers
             string cardNumTo = Convert.ToString(myObject.cardNumTo);
             decimal amount = Convert.ToDecimal(myObject.amount);
             Transaction transaction = null;
-            try
+            var accessToken = Request.Headers["Authorization"];
+            Token token = _context.Token.FirstOrDefault(c => c.CardNum == cardNumFrom);
+            if (accessToken == token)
             {
-                Card cardFrom, cardTo;
-                if (_context.CheckingCard.FirstOrDefault(c => c.CardNum == cardNumFrom) != null)
+                try
                 {
-                    cardFrom = _context.CheckingCard.FirstOrDefault(c => c.CardNum == cardNumFrom);
-                }
-                else if (_context.CreditCard.FirstOrDefault(c => c.CardNum == cardNumFrom) != null)
-                {
-                    cardFrom = _context.CreditCard.FirstOrDefault(c => c.CardNum == cardNumFrom);
-                }
-                else if (_context.DepositCard.FirstOrDefault(c => c.CardNum == cardNumFrom) != null)
-                {
-                    cardFrom = _context.DepositCard.FirstOrDefault(c => c.CardNum == cardNumFrom);
-                }
-                else
-                {
-                    return new OkObjectResult(new TransferMoney { Ok = false });
-                }
-
-                if (_context.CheckingCard.FirstOrDefault(c => c.CardNum == cardNumTo) != null)
-                {
-                    cardTo = _context.CheckingCard.FirstOrDefault(c => c.CardNum == cardNumTo);
-                }
-                else if (_context.CreditCard.FirstOrDefault(c => c.CardNum == cardNumTo) != null)
-                {
-                    cardTo = _context.CreditCard.FirstOrDefault(c => c.CardNum == cardNumTo);
-                }
-                else if (_context.DepositCard.FirstOrDefault(c => c.CardNum == cardNumTo) != null)
-                {
-                    cardTo = _context.DepositCard.FirstOrDefault(c => c.CardNum == cardNumTo);
-                }
-                else
-                {
-                    return new OkObjectResult(new TransferMoney { Ok = false });
-                }
-
-                transaction = new Transaction
-                { Amount = amount, CardSenderNum = cardNumFrom, CardReceiverNum = cardNumTo };
-
-                if (cardFrom is CheckingCard checkCard)
-                {
-                    if (checkCard.Balance >= amount)
-                        checkCard.Balance -= amount;
-                }
-                else if (cardFrom is DepositCard depositCard)
-                {
-                    if (depositCard.UpdateBalance())
+                    Card cardFrom, cardTo;
+                    if (_context.CheckingCard.FirstOrDefault(c => c.CardNum == cardNumFrom) != null)
                     {
-                        if (depositCard.Balance == depositCard.TotalBalance)
+                        cardFrom = _context.CheckingCard.FirstOrDefault(c => c.CardNum == cardNumFrom);
+                    }
+                    else if (_context.CreditCard.FirstOrDefault(c => c.CardNum == cardNumFrom) != null)
+                    {
+                        cardFrom = _context.CreditCard.FirstOrDefault(c => c.CardNum == cardNumFrom);
+                    }
+                    else if (_context.DepositCard.FirstOrDefault(c => c.CardNum == cardNumFrom) != null)
+                    {
+                        cardFrom = _context.DepositCard.FirstOrDefault(c => c.CardNum == cardNumFrom);
+                    }
+                    else
+                    {
+                        return new OkObjectResult(new TransferMoney { Ok = false });
+                    }
+
+                    if (_context.CheckingCard.FirstOrDefault(c => c.CardNum == cardNumTo) != null)
+                    {
+                        cardTo = _context.CheckingCard.FirstOrDefault(c => c.CardNum == cardNumTo);
+                    }
+                    else if (_context.CreditCard.FirstOrDefault(c => c.CardNum == cardNumTo) != null)
+                    {
+                        cardTo = _context.CreditCard.FirstOrDefault(c => c.CardNum == cardNumTo);
+                    }
+                    else if (_context.DepositCard.FirstOrDefault(c => c.CardNum == cardNumTo) != null)
+                    {
+                        cardTo = _context.DepositCard.FirstOrDefault(c => c.CardNum == cardNumTo);
+                    }
+                    else
+                    {
+                        return new OkObjectResult(new TransferMoney { Ok = false });
+                    }
+
+                    transaction = new Transaction
+                    { Amount = amount, CardSenderNum = cardNumFrom, CardReceiverNum = cardNumTo };
+
+                    if (cardFrom is CheckingCard checkCard)
+                    {
+                        if (checkCard.Balance >= amount)
+                            checkCard.Balance -= amount;
+                    }
+                    else if (cardFrom is DepositCard depositCard)
+                    {
+                        if (depositCard.UpdateBalance())
                         {
-                            depositCard.Balance -= amount;
-                            depositCard.TotalBalance -= amount;
+                            if (depositCard.Balance == depositCard.TotalBalance)
+                            {
+                                depositCard.Balance -= amount;
+                                depositCard.TotalBalance -= amount;
+                            }
+                            else
+                            {
+                                depositCard.Balance += depositCard.Balance * depositCard.Rate - amount;
+                                depositCard.TotalBalance = depositCard.Balance;
+                            }
                         }
                         else
                         {
-                            depositCard.Balance += depositCard.Balance * depositCard.Rate - amount;
-                            depositCard.TotalBalance = depositCard.Balance;
+                            depositCard.Rate = 0m;
+                            depositCard.Balance -= (amount + amount * depositCard.Commission);
+                            depositCard.TotalBalance = depositCard.TotalBalance;
                         }
                     }
                     else
                     {
-                        depositCard.Rate = 0m;
-                        depositCard.Balance -= (amount + amount * depositCard.Commission);
-                        depositCard.TotalBalance = depositCard.TotalBalance;
-                    }
-                }
-                else
-                {
-                    var creditCard = (CreditCard)cardFrom;
-                    if (creditCard != null)
+                        var creditCard = (CreditCard)cardFrom;
+                        if (creditCard != null)
 
+                        {
+                            if (creditCard.OwnMoney >= amount)
+                            {
+                                creditCard.OwnMoney -= amount;
+                            }
+                            else if (creditCard.Balance >= amount)
+                            {
+                                var initBalance = creditCard.OwnMoney;
+                                if (!creditCard.IsInLimit)
+                                {
+                                    creditCard.Limit = amount - creditCard.OwnMoney;
+                                    creditCard.OwnMoney = 0;
+                                    creditCard.IsInLimit = true;
+                                    creditCard.LimitWithdrawn = DateTime.Now;
+                                }
+                                else if (creditCard.IsInLimit && DateTime.Now <= creditCard.EndLimit)
+                                {
+                                    creditCard.Limit = amount - creditCard.OwnMoney;
+                                    creditCard.OwnMoney = 0;
+                                }
+                                else if (creditCard.IsInLimit && DateTime.Now > creditCard.EndLimit)
+                                {
+                                    var days = DateTime.Now.Subtract((DateTime)creditCard.EndLimit).Days;
+                                    var percents = days * creditCard.PercentIfDelay * initBalance;
+                                    creditCard.Limit = amount - creditCard.OwnMoney - percents;
+                                    creditCard.OwnMoney = 0;
+                                }
+                            }
+                        }
+                    }
+
+                    switch (cardTo)
                     {
-                        if (creditCard.OwnMoney >= amount)
-                        {
-                            creditCard.OwnMoney -= amount;
-                        }
-                        else if (creditCard.Balance >= amount)
-                        {
-                            var initBalance = creditCard.OwnMoney;
-                            if (!creditCard.IsInLimit)
-                            {
-                                creditCard.Limit = amount - creditCard.OwnMoney;
-                                creditCard.OwnMoney = 0;
-                                creditCard.IsInLimit = true;
-                                creditCard.LimitWithdrawn = DateTime.Now;
-                            }
-                            else if (creditCard.IsInLimit && DateTime.Now <= creditCard.EndLimit)
-                            {
-                                creditCard.Limit = amount - creditCard.OwnMoney;
-                                creditCard.OwnMoney = 0;
-                            }
-                            else if (creditCard.IsInLimit && DateTime.Now > creditCard.EndLimit)
-                            {
-                                var days = DateTime.Now.Subtract((DateTime)creditCard.EndLimit).Days;
-                                var percents = days * creditCard.PercentIfDelay * initBalance;
-                                creditCard.Limit = amount - creditCard.OwnMoney - percents;
-                                creditCard.OwnMoney = 0;
-                            }
-                        }
+                        case CheckingCard checkingCard:
+                            checkingCard.Balance += amount;
+                            break;
+                        case DepositCard depositCard:
+                            depositCard.Balance += amount;
+                            break;
+                        case CreditCard creditCard:
+                            creditCard.OwnMoney += amount;
+                            break;
                     }
-                }
 
-                switch (cardTo)
+                    transaction.Success = true;
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception exc)
                 {
-                    case CheckingCard checkingCard:
-                        checkingCard.Balance += amount;
-                        break;
-                    case DepositCard depositCard:
-                        depositCard.Balance += amount;
-                        break;
-                    case CreditCard creditCard:
-                        creditCard.OwnMoney += amount;
-                        break;
+                    transaction.Success = false;
+                    return new OkObjectResult(new TransferMoney { Ok = false, Errors = new List<string> { exc.Message } });
                 }
-
-                transaction.Success = true;
-                await _context.SaveChangesAsync();
+                return new OkObjectResult(new TransferMoney { Ok = true });
             }
-            catch (Exception exc)
-            {
-                transaction.Success = false;
-                return new OkObjectResult(new TransferMoney { Ok = false, Errors = new List<string> { exc.Message } });
-            }
-            return new OkObjectResult(new TransferMoney { Ok = true });
+            return new OkObjectResult(new TransferMoney { Ok = false, Errors = new List<string> { "Error with token" } });
         }
 
+        [HttpPost]
+        [Route("~/api/Login")]
+        public async Task<ActionResult<Card>> Login()
+        {
+            var body = "";
+            using (var stream = new StreamReader(HttpContext.Request.Body))
+            {
+                body = await stream.ReadToEndAsync();
+            }
+            var myObject = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(body);
+            string cardNum = Convert.ToString(myObject.cardNum);
+            string pin = Convert.ToString(myObject.pin);
+            string hashedPin = pin /*ComputeSha256Hash(pin)*/;
+            Card card;
+            if (_context.Card.FirstOrDefault(c => c.CardNum == cardNum) != null)
+            {
+                card = _context.Card.FirstOrDefault(c => c.CardNum == cardNum);
+                if (card.Pin == pin)
+                {
+                    var now = DateTime.UtcNow;
+                    var jwt = new JwtSecurityToken(
+                    issuer: AuthOptions.ISSUER,
+                    audience: AuthOptions.AUDIENCE,
+                    notBefore: now,
+                    expires: now.Add(TimeSpan.FromMinutes(AuthOptions.LIFETIME)),
+                    signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
+                    var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
+                    Token token = new Token
+                    { CardNum = cardNum, CardToken = encodedJwt, Create = DateTime.UtcNow };
+                    _context.Add<Token>(token);
+                    await _context.SaveChangesAsync();
+                    return new OkObjectResult(new Log { Ok = true, Token = encodedJwt });
+                }
+                return new OkObjectResult(new Log { Ok = false});
+            }
+            else
+            {
+                return new OkObjectResult(new Log { Ok = false });
+            }
+        }
 
+        private string ComputeSha256Hash(string rawData)
+        {
+            // Create a SHA256   
+            using (SHA256 sha256Hash = SHA256.Create())
+            {
+                // ComputeHash - returns byte array  
+                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(rawData));
+
+                // Convert byte array to a string   
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    builder.Append(bytes[i].ToString("x2"));
+                }
+                return builder.ToString();
+            }
+        }
     }
 }
