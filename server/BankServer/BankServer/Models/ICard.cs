@@ -1,13 +1,22 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Bank_server.Models
+namespace BankServer.Models
 {
-    interface ICard
+    public abstract class Card
     {
-        long CardNum { get; set; }
-        string Pin { get; set; }
-        DateTime DateCreated { get; set; }
-        User CardUser { get; set; }
-        decimal Balance { get; }
+        [Key]
+        public string CardNum { get; set; }
+        [Required]
+        [MaxLength(4)]
+        public string Pin { get; set; }
+        [Required]
+        public DateTime DateCreated { get; set; }
+        [ForeignKey("UserId")]
+        public User CardUser { get; set; }
+        public int UserId { get; set; }
+        [Required]
+        public decimal Balance { get; }
     }
 }
