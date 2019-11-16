@@ -176,7 +176,7 @@ namespace BankServer.Controllers
                 body = await stream.ReadToEndAsync();
             }
             var myObject = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(body);
-            string cardNum = Convert.ToString(myObject.num);
+            string cardNum = Convert.ToString(myObject.cardNum);
             decimal amount = Convert.ToDecimal(myObject.amount);
             try
             {
