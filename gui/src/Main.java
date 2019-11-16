@@ -1,12 +1,11 @@
 import jdk.nashorn.internal.scripts.JO;
 import sessions.SessionManager;
 import utils.Constatns;
+import utils.InactivityListener;
 
 import javax.swing.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.*;
+import java.beans.PropertyChangeListener;
 import java.io.*;
 
 public class Main {
@@ -27,7 +26,7 @@ public class Main {
             e.printStackTrace();
         }
         initWindow();
-        SessionManager.Initialize(lp);
+        SessionManager.Initialize(lp, frame);
 
     }
 
