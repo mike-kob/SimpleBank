@@ -1,5 +1,4 @@
-﻿using Bank_server.Models;
-using BankServer.Models;
+﻿using BankServer.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using BankServer.Data;
 
 namespace BankServer.Controllers
 {
@@ -24,7 +24,7 @@ namespace BankServer.Controllers
         }
 
         [HttpGet("cardExists/{id}")]
-        public async Task<ActionResult> GetCardExists(long id)
+        public async Task<ActionResult> GetCardExists(string id)
         {
 
             if (await _context.CheckingCard.SingleOrDefaultAsync(m => m.CardNum == id) != null)
@@ -46,7 +46,7 @@ namespace BankServer.Controllers
         }
 
         [HttpGet("balance/{id}")]
-        public async Task<ActionResult> GetBalanceCard(long id)
+        public async Task<ActionResult> GetBalanceCard(string id)
         {
 
             if (await _context.CheckingCard.SingleOrDefaultAsync(m => m.CardNum == id) != null)
@@ -84,13 +84,13 @@ namespace BankServer.Controllers
         [HttpPut("changePin")]
         public async Task<ActionResult<CheckingCard>> PutChangePinChecking()
         {
-            var body = "";
-            using (StreamReader stream = new StreamReader(HttpContext.Request.Body))
+            string body;
+            using (var stream = new StreamReader(HttpContext.Request.Body))
             {
                 body = await stream.ReadToEndAsync();
             }
-            dynamic myObject = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(body);
-            long cardNum = Convert.ToInt64(myObject.num);
+            var myObject = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(body);
+            string cardNum = Convert.ToString(myObject.num);
             string oldPin = Convert.ToString(myObject.old);
             string newPin = Convert.ToString(myObject.newp);
 
@@ -116,13 +116,13 @@ namespace BankServer.Controllers
         public class CardExists
         {
             public bool Ok { get; set; }
-            public long CardNum { get; set; }
+            public string CardNum { get; set; }
             public bool IsValid { get; set; }
         }
         public class BalanceCard
         {
             public bool Ok { get; set; }
-            public long CardNum { get; set; }
+            public string CardNum { get; set; }
             public decimal Balance { get; set; }
             public decimal Limit { get; set; }
             public decimal OwnMoney { get; set; }
@@ -139,7 +139,7 @@ namespace BankServer.Controllers
             public bool Ok { get; set; }
             public List<string> Errors { get; set; }
         }
-        public class Transfer
+        public class TransferMoney
         {
             public bool Ok { get; set; }
             public List<string> Errors { get; set; }
@@ -162,32 +162,34 @@ namespace BankServer.Controllers
         public async Task<ActionResult<CheckingCard>> СheckingWithdraw()
         {
             var body = "";
-            using (StreamReader stream = new StreamReader(HttpContext.Request.Body))
+            using (var stream = new StreamReader(HttpContext.Request.Body))
             {
                 body = await stream.ReadToEndAsync();
             }
-            dynamic myObject = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(body);
-            long cardNum = Convert.ToInt64(myObject.num);
+            var myObject = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(body);
+            string cardNum = Convert.ToString(myObject.num);
             decimal amount = Convert.ToDecimal(myObject.amount);
             try
             {
                 var card = _context.CheckingCard.FirstOrDefault(c => c.CardNum == cardNum);
-                var transaction = new Transaction
+                if (card != null)
                 {
-                    TypeOfTxn = 0,
-                    CardSender = card.CardNum,
-                    Amount = amount,
-                    DatetimeOfTxn = DateTime.Now
-                };
-                if (card.Balance >= amount)
-                {
-                    transaction.Success = true;
-                    return await CheckingConfirmWithdraw(card.CardNum, "finished");
-                }
-                else
-                {
+                    _context.Transaction.Add(new Transaction
+                    {
+                        TypeOfTxn = 0,
+                        Amount = amount,
+                        DatetimeOfTxn = DateTime.Now,
+                        CardSenderNum = card.CardNum
+                    });
+                    await _context.SaveChangesAsync();
+                    if (card.Balance >= amount)
+                    {
+                        return await CheckingConfirmWithdraw(card.CardNum, _context.Transaction.Last().TxnId, "finished");
+                    }
+
                     return new OkObjectResult(new Withdraw { Ok = true, Allowed = false }); ;
                 }
+                return new OkObjectResult(new Withdraw { Ok = false });
             }
             catch (ArgumentNullException)
             {
@@ -204,20 +206,26 @@ namespace BankServer.Controllers
             {
                 body = await stream.ReadToEndAsync();
             }
-            dynamic myObject = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(body);
-            long cardNum = Convert.ToInt64(myObject.num);
+            var myObject = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(body);
+            string cardNum = Convert.ToString(myObject.num);
             decimal amount = Convert.ToDecimal(myObject.amount);
             try
             {
                 var card = await _context.DepositCard.FirstOrDefaultAsync(c => c.CardNum == cardNum);
+                _context.Transaction.Add(new Transaction
+                {
+                    TypeOfTxn = 0,
+                    Amount = amount,
+                    DatetimeOfTxn = DateTime.Now,
+                    CardSenderNum = card.CardNum
+                });
+                await _context.SaveChangesAsync();
                 if (card.TotalBalance >= amount)
                 {
-                    return await DepositConfirmWithdraw(card.CardNum, "finished");
+                    return await DepositConfirmWithdraw(card.CardNum, _context.Transaction.Last().TxnId, "finished");
                 }
-                else
-                {
-                    return new OkObjectResult(new Withdraw { Ok = true, Allowed = false });
-                }
+
+                return new OkObjectResult(new Withdraw { Ok = true, Allowed = false });
             }
             catch (ArgumentNullException)
             {
@@ -237,20 +245,28 @@ namespace BankServer.Controllers
         [Route("~/api/CreditWithdraw")]
         public async Task<ActionResult<CreditCard>> CreditWithdraw()
         {
-            var body = "";
-            using (StreamReader stream = new StreamReader(HttpContext.Request.Body))
+            string body;
+            using (var stream = new StreamReader(HttpContext.Request.Body))
             {
                 body = await stream.ReadToEndAsync();
             }
             dynamic myObject = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(body);
-            long cardNum = Convert.ToInt64(myObject.num);
+            string cardNum = Convert.ToString(myObject.num);
             decimal amount = Convert.ToDecimal(myObject.amount);
             try
             {
                 var card = await _context.CreditCard.FirstOrDefaultAsync(c => c.CardNum == cardNum);
+                _context.Transaction.Add(new Transaction
+                {
+                    TypeOfTxn = 0,
+                    Amount = amount,
+                    DatetimeOfTxn = DateTime.Now,
+                    CardSenderNum = card.CardNum
+                });
+                await _context.SaveChangesAsync();
                 if (card.OwnMoney >= amount || card.Balance >= amount)
                 {
-                    return await CreditConfirmWithdraw(card.CardNum, "finished");
+                    return await CreditConfirmWithdraw(card.CardNum, _context.Transaction.Last().TxnId, "finished");
                 }
                 else
                 {
@@ -274,7 +290,7 @@ namespace BankServer.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<CheckingCard>> CheckingConfirmWithdraw(long cardNum, string finished, string errors = null)
+        public async Task<ActionResult<CheckingCard>> CheckingConfirmWithdraw(string cardNum, int txnId, string finished, string errors = null)
         {
             if (finished.Equals("finished"))
             {
@@ -282,7 +298,7 @@ namespace BankServer.Controllers
                 try
                 {
                     var card = _context.CheckingCard.FirstOrDefault(c => c.CardNum == cardNum);
-                    transaction = _context.Transaction.FirstOrDefault(c => c.CardSender == cardNum);
+                    transaction = _context.Transaction.FirstOrDefault(c => c.TxnId == txnId);
                     card.Balance -= transaction.Amount;
                     await _context.SaveChangesAsync();
                     return new OkObjectResult(new ConfirmWithdraw { Ok = true });
@@ -302,7 +318,7 @@ namespace BankServer.Controllers
             return new OkObjectResult(new ConfirmWithdraw { Ok = false });
         }
 
-        public async Task<ActionResult<DepositCard>> DepositConfirmWithdraw(long cardNum, string finished, string errors = null)
+        public async Task<ActionResult<DepositCard>> DepositConfirmWithdraw(string cardNum, int txnId, string finished, string errors = null)
         {
             if (finished.Equals("finished"))
             {
@@ -310,6 +326,7 @@ namespace BankServer.Controllers
                 try
                 {
                     var card = _context.DepositCard.FirstOrDefault(c => c.CardNum == cardNum);
+                    transaction = _context.Transaction.FirstOrDefault(c => c.TxnId == txnId);
                     if (card.UpdateBalance())
                     {
                         if (card.Balance == card.TotalBalance)
@@ -347,7 +364,7 @@ namespace BankServer.Controllers
             }
             return new OkObjectResult(new ConfirmWithdraw { Ok = false });
         }
-        public async Task<ActionResult<CreditCard>> CreditConfirmWithdraw(long cardNum, string finished, string errors = null)
+        public async Task<ActionResult<CreditCard>> CreditConfirmWithdraw(string cardNum, int txnId, string finished, string errors = null)
         {
             if (finished.Equals("finished"))
             {
@@ -355,6 +372,7 @@ namespace BankServer.Controllers
                 try
                 {
                     var card = await _context.CreditCard.FirstOrDefaultAsync(c => c.CardNum == cardNum);
+                    transaction = _context.Transaction.FirstOrDefault(c => c.TxnId == txnId);
                     if (card.OwnMoney >= transaction.Amount)
                     {
                         card.OwnMoney -= transaction.Amount;
@@ -401,150 +419,148 @@ namespace BankServer.Controllers
             return new OkObjectResult(new ConfirmWithdraw { Ok = false });
         }
         [HttpPost]
-        [Route("~/api/CheckingTransfer")]
-        public async Task<ActionResult<CheckingCard>> CheckingTransfer()
+        [Route("~/api/Transfer")]
+        public async Task<ActionResult<Card>> Transfer()
         {
             var body = "";
             using (StreamReader stream = new StreamReader(HttpContext.Request.Body))
             {
                 body = await stream.ReadToEndAsync();
             }
-            dynamic myObject = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(body);
-            long cardNumFrom = Convert.ToInt64(myObject.numFrom);
-            long cardNumTo = Convert.ToInt64(myObject.numTo);
+            var myObject = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(body);
+            string cardNumFrom = Convert.ToString(myObject.numFrom);
+            string cardNumTo = Convert.ToString(myObject.numTo);
             decimal amount = Convert.ToDecimal(myObject.amount);
-
+            Transaction transaction = null;
             try
             {
-                if (_context.CheckingCard.FirstOrDefault(c => c.CardNum == cardNumFrom).Balance >= amount)
+                Card cardFrom, cardTo;
+                if (_context.CheckingCard.FirstOrDefault(c => c.CardNum == cardNumFrom) != null)
                 {
-                    _context.CheckingCard.FirstOrDefault(c => c.CardNum == cardNumFrom).Balance -= amount;
-                    _context.CheckingCard.FirstOrDefault(c => c.CardNum == cardNumTo).Balance += amount;
-                    await _context.SaveChangesAsync();
+                    cardFrom = _context.CheckingCard.FirstOrDefault(c => c.CardNum == cardNumFrom);
+                }
+                else if (_context.CreditCard.FirstOrDefault(c => c.CardNum == cardNumFrom) != null)
+                {
+                    cardFrom = _context.CreditCard.FirstOrDefault(c => c.CardNum == cardNumFrom);
+                }
+                else if (_context.DepositCard.FirstOrDefault(c => c.CardNum == cardNumFrom) != null)
+                {
+                    cardFrom = _context.DepositCard.FirstOrDefault(c => c.CardNum == cardNumFrom);
                 }
                 else
                 {
-                    return Forbid();
+                    return new OkObjectResult(new TransferMoney { Ok = false });
                 }
-            }
-            catch (ArgumentNullException)
-            {
-                return Unauthorized();
-            }
 
-            return new OkObjectResult(new Transfer { Ok = true });
-        }
-        [HttpPost]
-        [Route("~/api/DepositTransfer")]
-        public async Task<ActionResult<DepositCard>> DepositTransfer()
-        {
-            var body = "";
-            using (StreamReader stream = new StreamReader(HttpContext.Request.Body))
-            {
-                body = await stream.ReadToEndAsync();
-            }
-            dynamic myObject = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(body);
-            long cardNumFrom = Convert.ToInt64(myObject.numFrom);
-            long cardNumTo = Convert.ToInt64(myObject.numTo);
-            decimal amount = Convert.ToDecimal(myObject.amount);
-
-            try
-            {
-                if (_context.DepositCard.FirstOrDefault(c => c.CardNum == cardNumFrom).TotalBalance >= amount)
+                if (_context.CheckingCard.FirstOrDefault(c => c.CardNum == cardNumTo) != null)
                 {
-                    var card = _context.DepositCard.FirstOrDefault(c => c.CardNum == cardNumFrom);
-                    if (card.UpdateBalance())
+                    cardTo = _context.CheckingCard.FirstOrDefault(c => c.CardNum == cardNumTo);
+                }
+                else if (_context.CreditCard.FirstOrDefault(c => c.CardNum == cardNumTo) != null)
+                {
+                    cardTo = _context.CreditCard.FirstOrDefault(c => c.CardNum == cardNumTo);
+                }
+                else if (_context.DepositCard.FirstOrDefault(c => c.CardNum == cardNumTo) != null)
+                {
+                    cardTo = _context.DepositCard.FirstOrDefault(c => c.CardNum == cardNumTo);
+                }
+                else
+                {
+                    return new OkObjectResult(new TransferMoney { Ok = false });
+                }
+
+                transaction = new Transaction
+                { Amount = amount, CardSenderNum = cardNumFrom, CardReceiverNum = cardNumTo };
+
+                if (cardFrom is CheckingCard checkCard)
+                {
+                    if (checkCard.Balance >= amount)
+                        checkCard.Balance -= amount;
+                }
+                else if (cardFrom is DepositCard depositCard)
+                {
+                    if (depositCard.UpdateBalance())
                     {
-                        if (card.Balance == card.TotalBalance)
+                        if (depositCard.Balance == depositCard.TotalBalance)
                         {
-                            card.Balance -= amount;
-                            card.TotalBalance -= amount;
+                            depositCard.Balance -= amount;
+                            depositCard.TotalBalance -= amount;
                         }
                         else
                         {
-                            card.Balance += card.Balance * card.Rate - amount;
-                            card.TotalBalance = card.Balance;
+                            depositCard.Balance += depositCard.Balance * depositCard.Rate - amount;
+                            depositCard.TotalBalance = depositCard.Balance;
                         }
                     }
                     else
                     {
-                        card.Rate = 0m;
-                        card.Balance -= (amount + amount * card.Commission);
-                        card.TotalBalance = card.TotalBalance;
+                        depositCard.Rate = 0m;
+                        depositCard.Balance -= (amount + amount * depositCard.Commission);
+                        depositCard.TotalBalance = depositCard.TotalBalance;
                     }
-                    _context.DepositCard.FirstOrDefault(c => c.CardNum == cardNumTo).Balance += amount;
-                    await _context.SaveChangesAsync();
                 }
                 else
                 {
-                    return Forbid();
+                    var creditCard = (CreditCard)cardFrom;
+                    if (creditCard != null)
+
+                    {
+                        if (creditCard.OwnMoney >= amount)
+                        {
+                            creditCard.OwnMoney -= amount;
+                        }
+                        else if (creditCard.Balance >= amount)
+                        {
+                            var initBalance = creditCard.OwnMoney;
+                            if (!creditCard.IsInLimit)
+                            {
+                                creditCard.Limit = amount - creditCard.OwnMoney;
+                                creditCard.OwnMoney = 0;
+                                creditCard.IsInLimit = true;
+                                creditCard.LimitWithdrawn = DateTime.Now;
+                            }
+                            else if (creditCard.IsInLimit && DateTime.Now <= creditCard.EndLimit)
+                            {
+                                creditCard.Limit = amount - creditCard.OwnMoney;
+                                creditCard.OwnMoney = 0;
+                            }
+                            else if (creditCard.IsInLimit && DateTime.Now > creditCard.EndLimit)
+                            {
+                                var days = DateTime.Now.Subtract((DateTime)creditCard.EndLimit).Days;
+                                var percents = days * creditCard.PercentIfDelay * initBalance;
+                                creditCard.Limit = amount - creditCard.OwnMoney - percents;
+                                creditCard.OwnMoney = 0;
+                            }
+                        }
+                    }
                 }
+
+                switch (cardTo)
+                {
+                    case CheckingCard checkingCard:
+                        checkingCard.Balance += amount;
+                        break;
+                    case DepositCard depositCard:
+                        depositCard.Balance += amount;
+                        break;
+                    case CreditCard creditCard:
+                        creditCard.OwnMoney += amount;
+                        break;
+                }
+
+                transaction.Success = true;
+                await _context.SaveChangesAsync();
             }
             catch (ArgumentNullException)
             {
-                return Unauthorized();
+                transaction.Success = false;
+                return new OkObjectResult(new TransferMoney { Ok = false });
             }
 
-            return new OkObjectResult(new Transfer { Ok = true });
+
+            return new OkObjectResult(new TransferMoney { Ok = true });
         }
 
-        [HttpPost]
-        [Route("~/api/CreditTransfer")]
-        public async Task<ActionResult<CreditCard>> CreditTransfer()
-        {
-            var body = "";
-            using (StreamReader stream = new StreamReader(HttpContext.Request.Body))
-            {
-                body = await stream.ReadToEndAsync();
-            }
-            dynamic myObject = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(body);
-            long cardNumFrom = Convert.ToInt64(myObject.numFrom);
-            long cardNumTo = Convert.ToInt64(myObject.numTo);
-            decimal amount = Convert.ToDecimal(myObject.amount);
 
-            try
-            {
-                var card = await _context.CreditCard.FirstOrDefaultAsync(c => c.CardNum == cardNumFrom);
-                if (card.OwnMoney >= amount)
-                {
-                    card.OwnMoney -= amount;
-                }
-                else if (card.Balance >= amount)
-                {
-                    var initBalance = card.OwnMoney;
-                    if (!card.IsInLimit)
-                    {
-                        card.Limit = amount - card.OwnMoney;
-                        card.OwnMoney = 0;
-                        card.IsInLimit = true;
-                        card.LimitWithdrawn = DateTime.Now;
-                    }
-                    else if (card.IsInLimit && DateTime.Now <= card.EndLimit)
-                    {
-                        card.Limit = amount - card.OwnMoney;
-                        card.OwnMoney = 0;
-                    }
-                    else if (card.IsInLimit && DateTime.Now > card.EndLimit)
-                    {
-                        var days = DateTime.Now.Subtract((DateTime)card.EndLimit).Days;
-                        var percents = days * card.PercentIfDelay * initBalance;
-                        card.Limit = amount - card.OwnMoney - percents;
-                        card.OwnMoney = 0;
-                    }
-                    var cardTo = _context.CreditCard.FirstOrDefault(c => c.CardNum == cardNumTo);
-                    cardTo.OwnMoney += amount;
-                    await _context.SaveChangesAsync();
-                }
-                else
-                {
-                    return Forbid();
-                }
-            }
-            catch (ArgumentNullException)
-            {
-                return Unauthorized();
-            }
-            return new OkObjectResult(new Transfer { Ok = true });
-        }
     }
 }

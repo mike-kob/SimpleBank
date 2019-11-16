@@ -2,33 +2,23 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Bank_server.Models
+namespace BankServer.Models
 {
-    public class CreditCard : ICard
+    [Table("CreditCard")]
+    public class CreditCard : Card
     {
-        [Key]
-        public long CardNum { get; set; }
-        [Required]
-        [MaxLength(4)]
-        public string Pin { get; set; }
-        [Required]
-        public DateTime DateCreated { get; set; }
         [Required]
         public decimal OwnMoney { get; set; }
         [Required]
         public decimal Limit { get; set; }
         [Required]
-        public decimal Balance => OwnMoney + Limit;
+        public new decimal Balance => OwnMoney + Limit;
         public decimal PercentIfDelay { get; } = 0.01m;
         public bool IsInLimit { get; set; }
         public DateTime? LimitWithdrawn { get; set; }
         public DateTime? EndLimit { get => EndLimitDate(); }
         public decimal? MinSum { get; set; }
 
-        [ForeignKey("Id")]
-        public User CardUser { get; set; }
-        public int Id { get; set; }
-                
         public DateTime? EndLimitDate()
         {
             if (LimitWithdrawn!=null)

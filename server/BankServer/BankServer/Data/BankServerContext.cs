@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using BankServer.Models;
 using Microsoft.EntityFrameworkCore;
-using Bank_server.Models;
-using BankServer.Models;
 
-namespace BankServer.Models
+namespace BankServer.Data
 {
     public class BankServerContext : DbContext
     {
@@ -24,6 +19,7 @@ namespace BankServer.Models
         public DbSet<CreditCard> CreditCard { get; set; }
 
         public DbSet<DepositCard> DepositCard { get; set; }
+        public DbSet<Atm> Atm { get; set; }
 
     }
 }

@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BankServer.Models
 {
@@ -13,14 +11,17 @@ namespace BankServer.Models
         [Required]
         public int TypeOfTxn { get; set; }
         [Required]
-        public long CardSender { get; set; }
-
-        public long CardReceiver { get; set; }
-        [Required]
         public decimal Amount { get; set; }
         [Required]
         public DateTime DatetimeOfTxn { get; set; }
         [Required]
         public bool Success { get; set; }
+        [ForeignKey("CardSenderNum")]
+        public Card CardSender { get; set; }
+        public string CardSenderNum { get; set; }
+        [ForeignKey("CardReceiverNum")]
+        public Card CardReceiver { get; set; }
+        public string CardReceiverNum { get; set; }
+
     }
 }
