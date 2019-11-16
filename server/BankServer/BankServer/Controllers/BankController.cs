@@ -76,7 +76,7 @@ namespace BankServer.Controllers
             else if (await _context.CreditCard.SingleOrDefaultAsync(m => m.CardNum == id) != null)
             {
                 var card = await _context.CreditCard.SingleOrDefaultAsync(m => m.CardNum == id);
-                return new OkObjectResult(new BalanceCard { Ok = true, CardNum = id, OwnMoney = card.OwnMoney, Limit = card.Limit, Balance = card.Balance });
+                return new OkObjectResult(new BalanceCreditCard { Ok = true, CardNum = id, OwnMoney = card.OwnMoney, Limit = card.Limit, Balance = card.Balance });
             }
             return new OkObjectResult(new BalanceCard { Ok = false, CardNum = id, Balance = 0 });
         }
@@ -124,9 +124,11 @@ namespace BankServer.Controllers
             public bool Ok { get; set; }
             public string CardNum { get; set; }
             public decimal Balance { get; set; }
+        }
+        public class BalanceCreditCard : BalanceCard
+        {
             public decimal Limit { get; set; }
             public decimal OwnMoney { get; set; }
-
         }
         public class Withdraw
         {
