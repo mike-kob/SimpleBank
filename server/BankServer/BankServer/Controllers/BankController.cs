@@ -42,7 +42,7 @@ namespace BankServer.Controllers
                 var card = await _context.CreditCard.SingleOrDefaultAsync(m => m.CardNum == id);
                 return new OkObjectResult(new CardExists { Ok = true, CardNum = id, IsValid = true });
             }
-            return new OkObjectResult(new BalanceCard { Ok = false, CardNum = id, Balance = 0 });
+            return new OkObjectResult(new CardExists { Ok = false, CardNum = id, IsValid = false });
         }
 
         [HttpGet("balance/{id}")]
@@ -89,28 +89,33 @@ namespace BankServer.Controllers
             {
                 body = await stream.ReadToEndAsync();
             }
-            var myObject = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(body);
-            string cardNum = Convert.ToString(myObject.num);
-            string oldPin = Convert.ToString(myObject.old);
-            string newPin = Convert.ToString(myObject.newp);
+            var myObject = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(body);
+            string cardNum = myObject["cardNum"];
+            string oldPin = myObject["oldPin"];
+            string newPin = myObject["newPin"];
 
             try
             {
-                if (_context.CheckingCard.FirstOrDefault(c => c.CardNum == cardNum).Pin == oldPin)
+                Card card = _context.Card.FirstOrDefault(c => c.CardNum == cardNum);
+                if (card == null)
                 {
-                    _context.CheckingCard.FirstOrDefault(c => c.CardNum == cardNum).Pin = newPin;
+                    return new OkObjectResult(new { Ok = false, Allowed = false, Errors = new[] { "Card doesn't exist" } });
+                }
+                else if (card.Pin == oldPin)
+                {
+                    card.Pin = newPin;
                     await _context.SaveChangesAsync();
                 }
                 else
                 {
-                    return Forbid();
+                    return new OkObjectResult(new { Ok = false, Allowed = false, Errors = new[] { "Old PIN code is incorrect" } });
                 }
             }
             catch (ArgumentNullException)
             {
                 return Unauthorized();
             }
-            return Ok("allowed");
+            return new OkObjectResult(new { Ok = true, Allowed = true });
         }
 
         public class CardExists
@@ -430,8 +435,8 @@ namespace BankServer.Controllers
                 body = await stream.ReadToEndAsync();
             }
             var myObject = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(body);
-            string cardNumFrom = Convert.ToString(myObject.numFrom);
-            string cardNumTo = Convert.ToString(myObject.numTo);
+            string cardNumFrom = Convert.ToString(myObject.cardNumFrom);
+            string cardNumTo = Convert.ToString(myObject.cardNumTo);
             decimal amount = Convert.ToDecimal(myObject.amount);
             Transaction transaction = null;
             try
