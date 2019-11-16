@@ -23,6 +23,45 @@ namespace BankServer.Controllers
             _context = context;
         }
 
+        public class CardExists
+        {
+            public bool Ok { get; set; }
+            public string CardNum { get; set; }
+            public bool IsValid { get; set; }
+        }
+        public class BalanceCard
+        {
+            public bool Ok { get; set; }
+            public string CardNum { get; set; }
+            public decimal Balance { get; set; }
+        }
+        public class BalanceCreditCard : BalanceCard
+        {
+            public decimal Limit { get; set; }
+            public decimal OwnMoney { get; set; }
+        }
+        public class WithdrawResult
+        {
+            public bool Ok { get; set; }
+            public bool Allowed { get; set; }
+            public List<string> Errors { get; set; }
+        }
+        public class ConfirmWithdrawResult
+        {
+            public bool Ok { get; set; }
+            public List<string> Errors { get; set; }
+        }
+        public class TransferMoney
+        {
+            public bool Ok { get; set; }
+            public List<string> Errors { get; set; }
+        }
+        public class Start
+        {
+            public bool Ok { get; set; }
+            public List<string> Errors { get; set; }
+        }
+
         [HttpGet("cardExists/{id}")]
         public async Task<ActionResult> GetCardExists(string id)
         {
@@ -118,44 +157,7 @@ namespace BankServer.Controllers
             return new OkObjectResult(new { Ok = true, Allowed = true });
         }
 
-        public class CardExists
-        {
-            public bool Ok { get; set; }
-            public string CardNum { get; set; }
-            public bool IsValid { get; set; }
-        }
-        public class BalanceCard
-        {
-            public bool Ok { get; set; }
-            public string CardNum { get; set; }
-            public decimal Balance { get; set; }
-        }
-        public class BalanceCreditCard : BalanceCard
-        {
-            public decimal Limit { get; set; }
-            public decimal OwnMoney { get; set; }
-        }
-        public class Withdraw
-        {
-            public bool Ok { get; set; }
-            public bool Allowed { get; set; }
-            public List<string> Errors { get; set; }
-        }
-        public class ConfirmWithdraw
-        {
-            public bool Ok { get; set; }
-            public List<string> Errors { get; set; }
-        }
-        public class TransferMoney
-        {
-            public bool Ok { get; set; }
-            public List<string> Errors { get; set; }
-        }
-        public class Start
-        {
-            public bool Ok { get; set; }
-            public List<string> Errors { get; set; }
-        }
+
         [HttpPost]
         [Route("~/api/startSession")]
         public ActionResult StartSession()
@@ -164,11 +166,11 @@ namespace BankServer.Controllers
         }
 
         [HttpPost]
-        [Route("~/api/СheckingWithdraw")]
+        [Route("~/api/withdraw")]
 
-        public async Task<ActionResult<CheckingCard>> СheckingWithdraw()
+        public async Task<ActionResult> Withdraw()
         {
-            var body = "";
+            string body;
             using (var stream = new StreamReader(HttpContext.Request.Body))
             {
                 body = await stream.ReadToEndAsync();
@@ -178,9 +180,9 @@ namespace BankServer.Controllers
             decimal amount = Convert.ToDecimal(myObject.amount);
             try
             {
-                var card = _context.CheckingCard.FirstOrDefault(c => c.CardNum == cardNum);
-                if (card != null)
+                if (_context.CheckingCard.FirstOrDefault(c => c.CardNum == cardNum) != null)
                 {
+                    var card = _context.CheckingCard.FirstOrDefault(c => c.CardNum == cardNum);
                     _context.Transaction.Add(new Transaction
                     {
                         TypeOfTxn = 0,
@@ -191,192 +193,75 @@ namespace BankServer.Controllers
                     await _context.SaveChangesAsync();
                     if (card.Balance >= amount)
                     {
-                        return await CheckingConfirmWithdraw(card.CardNum, _context.Transaction.Last().TxnId, "finished");
+                        return await ConfirmWithdraw(card.CardNum, _context.Transaction.Last().TxnId, "finished");
+                    }
+                    return new OkObjectResult(new WithdrawResult { Ok = true, Allowed = false });
+                }
+
+                if (_context.CreditCard.FirstOrDefault(c => c.CardNum == cardNum) != null)
+                {
+                    var card = await _context.CreditCard.FirstOrDefaultAsync(c => c.CardNum == cardNum);
+                    _context.Transaction.Add(new Transaction
+                    {
+                        TypeOfTxn = 0,
+                        Amount = amount,
+                        DatetimeOfTxn = DateTime.Now,
+                        CardSenderNum = card.CardNum
+                    });
+                    await _context.SaveChangesAsync();
+                    if (card.OwnMoney >= amount || card.Balance >= amount)
+                    {
+                        return await ConfirmWithdraw(card.CardNum, _context.Transaction.Last().TxnId, "finished");
+                    }
+                    return new OkObjectResult(new WithdrawResult { Ok = true, Allowed = false });
+
+                }
+                if (_context.DepositCard.FirstOrDefault(c => c.CardNum == cardNum) != null)
+                {
+                    var card = _context.DepositCard.FirstOrDefault(c => c.CardNum == cardNum);
+                    _context.Transaction.Add(new Transaction
+                    {
+                        TypeOfTxn = 0,
+                        Amount = amount,
+                        DatetimeOfTxn = DateTime.Now,
+                        CardSenderNum = card.CardNum
+                    });
+                    await _context.SaveChangesAsync();
+                    if (card.TotalBalance >= amount)
+                    {
+                        return await ConfirmWithdraw(card.CardNum, _context.Transaction.Last().TxnId, "finished");
                     }
 
-                    return new OkObjectResult(new Withdraw { Ok = true, Allowed = false }); ;
+                    return new OkObjectResult(new WithdrawResult { Ok = true, Allowed = false });
                 }
-                return new OkObjectResult(new Withdraw { Ok = false });
+                return new OkObjectResult(new WithdrawResult { Ok = false, Allowed = false });
             }
-            catch (ArgumentNullException)
+            catch (Exception exc)
             {
-                return Unauthorized();
+                var res = new WithdrawResult { Ok = false, Allowed = false, Errors = new List<string> { exc.Message } };
+                return new ObjectResult(res);
             }
         }
 
         [HttpPost]
-        [Route("~/api/DepositWithdraw")]
-        public async Task<ActionResult<DepositCard>> DepositWithdraw()
-        {
-            var body = "";
-            using (StreamReader stream = new StreamReader(HttpContext.Request.Body))
-            {
-                body = await stream.ReadToEndAsync();
-            }
-            var myObject = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(body);
-            string cardNum = Convert.ToString(myObject.num);
-            decimal amount = Convert.ToDecimal(myObject.amount);
-            try
-            {
-                var card = await _context.DepositCard.FirstOrDefaultAsync(c => c.CardNum == cardNum);
-                _context.Transaction.Add(new Transaction
-                {
-                    TypeOfTxn = 0,
-                    Amount = amount,
-                    DatetimeOfTxn = DateTime.Now,
-                    CardSenderNum = card.CardNum
-                });
-                await _context.SaveChangesAsync();
-                if (card.TotalBalance >= amount)
-                {
-                    return await DepositConfirmWithdraw(card.CardNum, _context.Transaction.Last().TxnId, "finished");
-                }
-
-                return new OkObjectResult(new Withdraw { Ok = true, Allowed = false });
-            }
-            catch (ArgumentNullException)
-            {
-                return Unauthorized();
-            }
-            catch (AccessViolationException)
-            {
-                return Unauthorized();
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
-        }
-
-        [HttpPost]
-        [Route("~/api/CreditWithdraw")]
-        public async Task<ActionResult<CreditCard>> CreditWithdraw()
-        {
-            string body;
-            using (var stream = new StreamReader(HttpContext.Request.Body))
-            {
-                body = await stream.ReadToEndAsync();
-            }
-            dynamic myObject = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(body);
-            string cardNum = Convert.ToString(myObject.num);
-            decimal amount = Convert.ToDecimal(myObject.amount);
-            try
-            {
-                var card = await _context.CreditCard.FirstOrDefaultAsync(c => c.CardNum == cardNum);
-                _context.Transaction.Add(new Transaction
-                {
-                    TypeOfTxn = 0,
-                    Amount = amount,
-                    DatetimeOfTxn = DateTime.Now,
-                    CardSenderNum = card.CardNum
-                });
-                await _context.SaveChangesAsync();
-                if (card.OwnMoney >= amount || card.Balance >= amount)
-                {
-                    return await CreditConfirmWithdraw(card.CardNum, _context.Transaction.Last().TxnId, "finished");
-                }
-                else
-                {
-                    return new OkObjectResult(new Withdraw { Ok = true, Allowed = false }); ;
-                }
-            }
-            catch (ArgumentNullException)
-            {
-                return Unauthorized();
-            }
-            catch (AccessViolationException)
-            {
-                return Unauthorized();
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
-        }
-
-        [HttpPost]
+        [Route("~/api/confirmWithdraw")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult<CheckingCard>> CheckingConfirmWithdraw(string cardNum, int txnId, string finished, string errors = null)
+        public async Task<ActionResult> ConfirmWithdraw(string cardNum, int txnId, string finished, string errors = null)
         {
-            if (finished.Equals("finished"))
+            if (!finished.Equals("finished")) return new OkObjectResult(new ConfirmWithdrawResult { Ok = false });
+            Transaction transaction = null;
+            try
             {
-                Transaction transaction = null;
-                try
+                if (_context.CheckingCard.FirstOrDefault(c => c.CardNum == cardNum) != null)
                 {
                     var card = _context.CheckingCard.FirstOrDefault(c => c.CardNum == cardNum);
                     transaction = _context.Transaction.FirstOrDefault(c => c.TxnId == txnId);
                     card.Balance -= transaction.Amount;
                     await _context.SaveChangesAsync();
-                    return new OkObjectResult(new ConfirmWithdraw { Ok = true });
+                    return new OkObjectResult(new ConfirmWithdrawResult { Ok = true });
                 }
-                catch (Exception exc)
-                {
-                    transaction.Success = false;
-                    await _context.SaveChangesAsync();
-                    var conf = new ConfirmWithdraw { Ok = false };
-                    conf.Errors = new List<string>
-                    {
-                        exc.Message
-                    };
-                    return new OkObjectResult(conf);
-                }
-            }
-            return new OkObjectResult(new ConfirmWithdraw { Ok = false });
-        }
-
-        public async Task<ActionResult<DepositCard>> DepositConfirmWithdraw(string cardNum, int txnId, string finished, string errors = null)
-        {
-            if (finished.Equals("finished"))
-            {
-                Transaction transaction = null;
-                try
-                {
-                    var card = _context.DepositCard.FirstOrDefault(c => c.CardNum == cardNum);
-                    transaction = _context.Transaction.FirstOrDefault(c => c.TxnId == txnId);
-                    if (card.UpdateBalance())
-                    {
-                        if (card.Balance == card.TotalBalance)
-                        {
-                            card.Balance -= transaction.Amount;
-                            card.TotalBalance -= transaction.Amount;
-                        }
-                        else
-                        {
-                            card.Balance += card.Balance * card.Rate - transaction.Amount;
-                            card.TotalBalance = card.Balance;
-                        }
-                    }
-                    else
-                    {
-                        card.Rate = 0m;
-                        card.Balance -= (transaction.Amount + transaction.Amount * card.Commission);
-                        card.TotalBalance = card.TotalBalance;
-
-                    }
-                    await _context.SaveChangesAsync();
-                    return new OkObjectResult(new ConfirmWithdraw { Ok = true });
-                }
-                catch (Exception exc)
-                {
-                    transaction.Success = false;
-                    await _context.SaveChangesAsync();
-                    var conf = new ConfirmWithdraw { Ok = false };
-                    conf.Errors = new List<string>
-                    {
-                        exc.Message
-                    };
-                    return new OkObjectResult(conf);
-                }
-            }
-            return new OkObjectResult(new ConfirmWithdraw { Ok = false });
-        }
-        public async Task<ActionResult<CreditCard>> CreditConfirmWithdraw(string cardNum, int txnId, string finished, string errors = null)
-        {
-            if (finished.Equals("finished"))
-            {
-                Transaction transaction = null;
-                try
+                else if (_context.CreditCard.FirstOrDefault(c => c.CardNum == cardNum) != null)
                 {
                     var card = await _context.CreditCard.FirstOrDefaultAsync(c => c.CardNum == cardNum);
                     transaction = _context.Transaction.FirstOrDefault(c => c.TxnId == txnId);
@@ -409,28 +294,54 @@ namespace BankServer.Controllers
                         }
                     }
                     await _context.SaveChangesAsync();
-                    return new OkObjectResult(new ConfirmWithdraw { Ok = true });
+                    return new OkObjectResult(new ConfirmWithdrawResult { Ok = true });
                 }
-                catch (Exception exc)
+                else if (_context.DepositCard.FirstOrDefault(c => c.CardNum == cardNum) != null)
                 {
-                    transaction.Success = false;
-                    await _context.SaveChangesAsync();
-                    var conf = new ConfirmWithdraw { Ok = false };
-                    conf.Errors = new List<string>
+                    var card = _context.DepositCard.FirstOrDefault(c => c.CardNum == cardNum);
+                    transaction = _context.Transaction.FirstOrDefault(c => c.TxnId == txnId);
+                    if (card.UpdateBalance())
                     {
-                        exc.Message
-                    };
-                    return new OkObjectResult(conf);
+                        if (card.Balance == card.TotalBalance)
+                        {
+                            card.Balance -= transaction.Amount;
+                            card.TotalBalance -= transaction.Amount;
+                        }
+                        else
+                        {
+                            card.Balance += card.Balance * card.Rate - transaction.Amount;
+                            card.TotalBalance = card.Balance;
+                        }
+                    }
+                    else
+                    {
+                        card.Rate = 0m;
+                        card.Balance -= (transaction.Amount + transaction.Amount * card.Commission);
+                        card.TotalBalance = card.TotalBalance;
+
+                    }
+                    await _context.SaveChangesAsync();
+                    return new OkObjectResult(new ConfirmWithdrawResult { Ok = true });
                 }
             }
-            return new OkObjectResult(new ConfirmWithdraw { Ok = false });
+            catch (Exception exc)
+            {
+                transaction.Success = false;
+                await _context.SaveChangesAsync();
+                var conf = new ConfirmWithdrawResult { Ok = false, Errors = new List<string> { exc.Message } };
+                return new OkObjectResult(conf);
+            }
+
+            return new OkObjectResult(new ConfirmWithdrawResult { Ok = false });
         }
+
+
         [HttpPost]
         [Route("~/api/Transfer")]
         public async Task<ActionResult<Card>> Transfer()
         {
             var body = "";
-            using (StreamReader stream = new StreamReader(HttpContext.Request.Body))
+            using (var stream = new StreamReader(HttpContext.Request.Body))
             {
                 body = await stream.ReadToEndAsync();
             }
@@ -558,13 +469,11 @@ namespace BankServer.Controllers
                 transaction.Success = true;
                 await _context.SaveChangesAsync();
             }
-            catch (ArgumentNullException)
+            catch (Exception exc)
             {
                 transaction.Success = false;
-                return new OkObjectResult(new TransferMoney { Ok = false });
+                return new OkObjectResult(new TransferMoney { Ok = false, Errors = new List<string> { exc.Message } });
             }
-
-
             return new OkObjectResult(new TransferMoney { Ok = true });
         }
 
