@@ -161,7 +161,7 @@ namespace BankServer.Controllers
         }
 
         [HttpPost]
-        [Route("~/api/СheckingWithdraw")]
+        [Route("~/api/withdraw")]
 
         public async Task<ActionResult> Withdraw()
         {
@@ -239,6 +239,7 @@ namespace BankServer.Controllers
         }
 
         [HttpPost]
+        [Route("~/api/confirmWithdraw")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult> ConfirmWithdraw(string cardNum, int txnId, string finished, string errors = null)
