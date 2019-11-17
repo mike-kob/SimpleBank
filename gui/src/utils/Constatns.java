@@ -23,5 +23,6 @@ public class Constatns {
 
     public static int CANCEL_KEY = 27;
 
+    public static int INACTIVITY_SECONDS = 30;
 
 }

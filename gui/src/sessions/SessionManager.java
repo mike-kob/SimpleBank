@@ -4,10 +4,13 @@ import api.CardAPI;
 import api.CardAPIINterface;
 import api.UserAPI;
 import api.UserAPIInterface;
+import utils.Constatns;
+import utils.InactivityListener;
 import utils.LocationHelper;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.BufferedReader;
@@ -22,11 +25,14 @@ public class SessionManager {
 
     private static Session currentSession = null;
     private static JLayeredPane jpane = null;
+    private static JFrame frame = null;
 
     private static JButton start;
+    private static InactivityListener listener;
 
-    public static void Initialize(JLayeredPane jp) {
+    public static void Initialize(JLayeredPane jp, JFrame fr) {
         jpane = jp;
+        frame = fr;
         initSleepWindow();
     }
 
@@ -74,12 +80,23 @@ public class SessionManager {
         session.setJpane(jpane);
         currentSession = session;
         currentSession.show();
+        listener = new InactivityListener(frame, new AbstractAction()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                finishSession();
+                JOptionPane.showMessageDialog(frame, "Your session is closed due to inactivity");
+            }
+        });
+        listener.setIntervalInMillis(Constatns.INACTIVITY_SECONDS * 1000);
+        listener.start();
     }
 
     static void finishSession(){
         currentSession = null;
         jpane.removeAll();
         jpane.repaint();
+        listener.stop();
         initSleepWindow();
     }
 

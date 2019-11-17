@@ -91,22 +91,13 @@ namespace BankServer.Controllers
         [HttpGet("cardExists/{id}")]
         public async Task<ActionResult> GetCardExists(string id)
         {
+            var card = await _context.Card.SingleOrDefaultAsync(m => m.CardNum == id);
 
-            if (await _context.CheckingCard.SingleOrDefaultAsync(m => m.CardNum == id) != null)
+            if (card != null)
             {
-                var card = await _context.CheckingCard.SingleOrDefaultAsync(m => m.CardNum == id);
                 return new OkObjectResult(new CardExists { Ok = true, CardNum = id, IsValid = true });
             }
-            else if (await _context.DepositCard.SingleOrDefaultAsync(m => m.CardNum == id) != null)
-            {
-                var card = await _context.DepositCard.SingleOrDefaultAsync(m => m.CardNum == id);
-                return new OkObjectResult(new CardExists { Ok = true, CardNum = id, IsValid = true });
-            }
-            else if (await _context.CreditCard.SingleOrDefaultAsync(m => m.CardNum == id) != null)
-            {
-                var card = await _context.CreditCard.SingleOrDefaultAsync(m => m.CardNum == id);
-                return new OkObjectResult(new CardExists { Ok = true, CardNum = id, IsValid = true });
-            }
+
             return new OkObjectResult(new CardExists { Ok = false, CardNum = id, IsValid = false });
         }
 
