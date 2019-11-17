@@ -21,6 +21,21 @@ namespace BankServer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Token",
+                columns: table => new
+                {
+                    Id = table.Column<long>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CardNum = table.Column<string>(nullable: false),
+                    CardToken = table.Column<string>(nullable: false),
+                    Create = table.Column<DateTime>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Token", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "User",
                 columns: table => new
                 {
@@ -117,6 +132,9 @@ namespace BankServer.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Atm");
+
+            migrationBuilder.DropTable(
+                name: "Token");
 
             migrationBuilder.DropTable(
                 name: "Transaction");

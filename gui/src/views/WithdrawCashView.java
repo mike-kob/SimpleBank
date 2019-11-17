@@ -1,5 +1,6 @@
 package views;
 
+import jdk.nashorn.internal.scripts.JO;
 import sessions.Session;
 import utils.Constatns;
 import utils.LocationHelper;
@@ -59,6 +60,10 @@ public class WithdrawCashView implements View{
         confirm.addActionListener(e -> {
             try {
                 int amount = Integer.parseInt(tfSum.getText());
+                if (amount % 100 == 0 && amount > 800)
+                {
+                    JOptionPane.showMessageDialog(jpane, "Can only withdraw 100x sum, <=800");
+                }
                 boolean accepted = this.session.getCardAPIClient().withdrawCash(this.session, amount);
                 if (accepted) {
                     JOptionPane.showMessageDialog(jpane, "Take your money");
