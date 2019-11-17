@@ -1,6 +1,7 @@
 package utils;
 
 import org.json.JSONObject;
+import sessions.Session;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -10,21 +11,21 @@ import java.net.URL;
 
 public class HttpHelper {
 
-    public static JSONObject Get(String targetURL) {
-        return doRequest(targetURL, "GET", null);
+    public static JSONObject Get(String targetURL, Session session) {
+        return doRequest(targetURL, "GET", null, session);
     }
 
-    public static JSONObject Post(String targetURL, JSONObject data)
+    public static JSONObject Post(String targetURL, JSONObject data, Session session)
     {
-        return doRequest(targetURL, "POST", data);
+        return doRequest(targetURL, "POST", data, session);
     }
 
-    public static JSONObject Put(String targetURL, JSONObject data)
+    public static JSONObject Put(String targetURL, JSONObject data, Session session)
     {
-        return doRequest(targetURL, "PUT", data);
+        return doRequest(targetURL, "PUT", data, session);
     }
 
-    private static JSONObject doRequest(String targetURL, String method, JSONObject data)
+    private static JSONObject doRequest(String targetURL, String method, JSONObject data, Session session)
     {
         JSONObject jsonObject = null;
 
@@ -34,7 +35,11 @@ public class HttpHelper {
             httpClient.setRequestMethod(method);
             httpClient.setRequestProperty("Content-Type", "Application/json");
             httpClient.setRequestProperty("Accept-Type", "Application/json");
-
+            if (session != null) {
+                String auth = session.getAuthorization();
+                if (auth != null)
+                    httpClient.setRequestProperty("Authorization", auth);
+            }
             if (data != null) {
                 httpClient.setDoInput(true);
                 httpClient.setDoOutput(true);

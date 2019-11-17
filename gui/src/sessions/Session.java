@@ -6,6 +6,7 @@ import api.CardAPI;
 import api.CardAPIINterface;
 import api.UserAPI;
 import api.UserAPIInterface;
+import jdk.nashorn.internal.parser.Token;
 import views.*;
 
 
@@ -18,6 +19,8 @@ public class Session {
     private CardAPIINterface cardAPI = new CardAPI();
     private UserAPIInterface userAPI = new UserAPI();
     private ATMInterface atmAPI = new ATM();
+
+    private String token = null;
 
     private String curCard = "";
     private String curPin = "";
@@ -74,6 +77,15 @@ public class Session {
     public void setCardPin(String pin)
     {
         curPin = pin;
+    }
+
+    public void setToken(String token) {this.token = token;}
+
+    public String getAuthorization() {
+        if (token == null)
+            return null;
+        else
+            return "bearer " + token;
     }
 
     private void initListeners(){

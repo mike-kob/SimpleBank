@@ -9,10 +9,10 @@ public class UserAPI implements UserAPIInterface {
 
     public Session startSession() {
         JSONObject data = new JSONObject();
-        JSONObject response = HttpHelper.Post(Constatns.HOST + Constatns.START_SESSION_URL, data);
+        JSONObject response = HttpHelper.Post(Constatns.HOST + Constatns.START_SESSION_URL, data, null);
         Session session = new Session();
 
-        if (response != null && response.getBoolean("Ok")){
+        if (response != null && response.getBoolean("ok")){
             return session;
         } else {
             return null;
@@ -21,10 +21,15 @@ public class UserAPI implements UserAPIInterface {
 
     public boolean login(Session session) {
         JSONObject data = new JSONObject();
-        data.put("card_num", session.getCardNum());
-        data.put("PIN", session.getCardPin());
-        JSONObject response = HttpHelper.Post(Constatns.HOST + Constatns.LOGIN_URL, data);
+        data.put("cardNum", session.getCardNum());
+        data.put("pin", session.getCardPin());
+        JSONObject response = HttpHelper.Post(Constatns.HOST + Constatns.LOGIN_URL, data, session);
 
-        return  (response != null && response.getBoolean("Ok"));
+        if (response != null && response.getBoolean("ok") && response.getString("token") != null) {
+            session.setToken(response.getString("token"));
+            return true;
+        } else {
+            return false;
+        }
     }
 }
