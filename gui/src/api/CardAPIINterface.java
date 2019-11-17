@@ -8,9 +8,9 @@ public interface CardAPIINterface {
 
     boolean changePin(Session session, String newPin);
 
-    boolean withdrawCash(Session session, int amount);
+    Integer withdrawCash(Session session, int amount);
 
-    boolean confirmWithdrawal(Session session);
+    boolean confirmWithdrawal(Session session, Integer txnId, boolean success, int amount);
 
     boolean exists(Session session, String cardNum);
 

@@ -21,8 +21,11 @@ public class Constatns {
     public static String START_SESSION_URL = "api/startSession/";
     public static String LOGIN_URL = "api/login/";
 
+    public static String ATM_REMAINING_URL = "api/atm/remaining/1";
+    public static String ATM_WITHDRAW_URL = "api/atm/withdraw/";
+
     public static int CANCEL_KEY = 27;
 
-    public static int INACTIVITY_SECONDS = 30;
+    public static int INACTIVITY_SECONDS = 30 * 60;
 
 }

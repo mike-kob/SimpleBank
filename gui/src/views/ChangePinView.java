@@ -151,7 +151,7 @@ public class ChangePinView implements View {
                 if (!succes)
                     JOptionPane.showMessageDialog(jpane, "Error occurred");
                 else {
-                    JOptionPane.showMessageDialog(jpane, "PIN-code changes successfully");
+                    JOptionPane.showMessageDialog(jpane, "PIN-code changed successfully");
                     this.session.goToPin();
                 }
             }

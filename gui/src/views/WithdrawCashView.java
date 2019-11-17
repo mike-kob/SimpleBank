@@ -59,22 +59,26 @@ public class WithdrawCashView implements View{
         confirm.setVisible(true);
         confirm.addActionListener(e -> {
             try {
+                int remain = session.getAtmReqAPIClient().getRemaining(session);
                 int amount = Integer.parseInt(tfSum.getText());
-                if (amount % 100 == 0 && amount > 800)
+                if (amount % 100 != 0 || amount > remain)
                 {
-                    JOptionPane.showMessageDialog(jpane, "Can only withdraw 100x sum, <=800");
+                    JOptionPane.showMessageDialog(jpane, "Can only withdraw 100x sum, <=" + remain);
+                    return;
                 }
-                boolean accepted = this.session.getCardAPIClient().withdrawCash(this.session, amount);
-                if (accepted) {
+                Integer txnId = this.session.getCardAPIClient().withdrawCash(this.session, amount);
+                if (txnId != null) {
                     JOptionPane.showMessageDialog(jpane, "Take your money");
-                    this.session.getaATMClient().checkoutUnits(this.session, 100);
+                    this.session.getaATMClient().checkoutUnits(this.session, amount);
+                    session.getAtmReqAPIClient().withdraw(session, amount);
+                    session.getCardAPIClient().confirmWithdrawal(session, txnId, true, amount);
                     this.session.goToPin();
                 } else  {
                     JOptionPane.showMessageDialog(jpane, "Unable to perform the operation!");
                 }
 
             } catch (NumberFormatException f) {
-                JOptionPane.showMessageDialog(jpane, "Invalid amount.");
+                JOptionPane.showMessageDialog(jpane, "Error");
             }
         });
         jpane.add(confirm, 0);

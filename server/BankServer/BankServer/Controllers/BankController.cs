@@ -165,7 +165,7 @@ namespace BankServer.Controllers
                 }
                 else
                 {
-                    card.Pin = newPin; //ComputeSha256Hash(newPin);
+                    card.Pin = ComputeSha256Hash(newPin);
                     _context.SaveChanges();
                     return new OkObjectResult(new { Ok = true, Allowed = true });
                 }
@@ -302,7 +302,7 @@ namespace BankServer.Controllers
         [Route("~/api/confirmWithdraw")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        public async Task<ActionResult> ConfirmWithdraw(string cardNum = null, int? txnId = null, bool success = false, string errors = null)
+        public async Task<ActionResult> ConfirmWithdraw(string cardNum = null, int? txnId = null, bool success = false, int amount = 0, string errors = null)
         {
             if (cardNum == null || txnId == null)
             {
@@ -315,6 +315,7 @@ namespace BankServer.Controllers
                 cardNum = Convert.ToString(myObject.cardNum);
                 txnId = Convert.ToInt32(myObject.txnId);
                 success = Convert.ToBoolean(myObject.success);
+                amount = Convert.ToInt32(myObject.amount);
                 if (!IsAuthenticated(cardNum))
                 {
                     return Unauthorized();
@@ -329,6 +330,23 @@ namespace BankServer.Controllers
                     return new OkObjectResult(new { Ok = false, Errors = new[] { "Not found" } });
                 }
                 transaction.Success = success;
+                if (success)
+                {
+                    Card card = await _context.Card.FirstOrDefaultAsync(c => c.CardNum == cardNum);
+                    switch (card)
+                    {
+                        case CheckingCard checkingCard:
+                            checkingCard.Balance -= amount;
+                            break;
+                        case DepositCard depositCard:
+                            depositCard.Balance -= amount;
+                            break;
+                        case CreditCard creditCard:
+                            creditCard.OwnMoney -= amount;
+                            break;
+                    }
+                }
+                
                 await _context.SaveChangesAsync();
             }
             catch (Exception exc)
@@ -587,20 +605,21 @@ namespace BankServer.Controllers
             var myObject = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(body);
             string cardNum = Convert.ToString(myObject.cardNum);
             string pin = Convert.ToString(myObject.pin);
-            string hashedPin = pin; //ComputeSha256Hash(pin);
+            string hashedPin = ComputeSha256Hash(pin);
             Card card;
             if (_context.Card.FirstOrDefault(c => c.CardNum == cardNum) != null)
             {
                 card = _context.Card.FirstOrDefault(c => c.CardNum == cardNum);
-                if (card.Pin == pin)
+                if (card.Pin == hashedPin)
                 {
                     var now = DateTime.Now;
-                    var jwt = new JwtSecurityToken(
-                    issuer: AuthOptions.ISSUER,
-                    audience: AuthOptions.AUDIENCE,
-                    notBefore: now,
-                    signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
-                    var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
+                    //var jwt = new JwtSecurityToken(
+                    //issuer: AuthOptions.ISSUER,
+                    //audience: AuthOptions.AUDIENCE,
+                    //notBefore: now,
+                    //signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
+                    //var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
+                    var encodedJwt = Convert.ToBase64String(Guid.NewGuid().ToByteArray()); 
                     Token token = new Token
                     { CardNum = cardNum, CardToken = encodedJwt, Create = DateTime.Now };
                     _context.Token.Add(token);
