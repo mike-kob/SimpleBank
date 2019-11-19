@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.HashMap;
+import java.util.Map;
 
 public class DisplayBalanceView implements View{
     private final JLayeredPane jpane;
@@ -25,7 +26,7 @@ public class DisplayBalanceView implements View{
     @Override
     public void init() {
         int winX = jpane.getHeight();
-        double balance = this.session.getCardAPIClient().getBalance(this.session);
+        Map<String, Double> balance = this.session.getCardAPIClient().getBalance(this.session);
         JLabel lBalance = new JLabel("Your balance");
         lBalance.setFont(new Font("Arial", Font.PLAIN, 60));
         lBalance.setHorizontalAlignment(SwingConstants.CENTER);
@@ -36,19 +37,21 @@ public class DisplayBalanceView implements View{
         lBalance.setVisible(true);
         jpane.add(lBalance);
 
-        JLabel lYourMoney = new JLabel("Your money:" + balance);
+        JLabel lYourMoney = new JLabel("Your money:" + balance.get("balance"));
         lYourMoney.setFont(Constatns.TITLE_FONT);
         lYourMoney.setHorizontalAlignment(SwingConstants.CENTER);
         lYourMoney.setBounds(10, (int) (winX * 0.3), 700, 70);
         lYourMoney.setVisible(true);
         jpane.add(lYourMoney);
 
-        JLabel lCreditLimit = new JLabel("Available credit limit:");
-        lCreditLimit.setFont(Constatns.TITLE_FONT);
-        lCreditLimit.setHorizontalAlignment(SwingConstants.CENTER);
-        lCreditLimit.setBounds(10, (int) (winX * 0.5), 700, 70);
-        lCreditLimit.setVisible(true);
-        jpane.add(lCreditLimit);
+        if (balance.containsKey("creditLimit")) {
+            JLabel lCreditLimit = new JLabel("Available credit limit:" + balance.get("creditLimit"));
+            lCreditLimit.setFont(Constatns.TITLE_FONT);
+            lCreditLimit.setHorizontalAlignment(SwingConstants.CENTER);
+            lCreditLimit.setBounds(10, (int) (winX * 0.5), 700, 70);
+            lCreditLimit.setVisible(true);
+            jpane.add(lCreditLimit);
+        }
 
         goBack = new JButton("Go back");
         goBack.setSize(160, 80);

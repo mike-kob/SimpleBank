@@ -1,6 +1,7 @@
 package utils;
 
 import java.awt.*;
+import java.util.logging.FileHandler;
 
 public class Constatns {
 
@@ -26,6 +27,6 @@ public class Constatns {
 
     public static int CANCEL_KEY = 27;
 
-    public static int INACTIVITY_SECONDS = 30 * 60;
+    public static int INACTIVITY_SECONDS = 30;
 
 }

@@ -13,6 +13,7 @@ public class Main {
     private static final JLayeredPane lp = frame.getLayeredPane();
 
     public static void main(String[] args) {
+
         String path = "./bin/properties.txt";
         FileInputStream fis = null;
         try {

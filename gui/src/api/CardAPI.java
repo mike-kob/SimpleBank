@@ -5,15 +5,26 @@ import sessions.Session;
 import utils.Constatns;
 import utils.HttpHelper;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class CardAPI implements CardAPIINterface {
 
-    public double getBalance(Session session)
+    public Map<String, Double> getBalance(Session session)
     {
         JSONObject response = HttpHelper.Get(Constatns.HOST + Constatns.BALANCE_URL + session.getCardNum(), session);
         if (response != null && response.getBoolean("ok")) {
-            return response.getDouble("balance");
+            HashMap<String, Double> res = new HashMap<>();
+            if (response.has("limit")) {
+                res.put("balance", response.getDouble("ownMoney"));
+                res.put("creditLimit", response.getDouble("limit"));
+            } else {
+                res.put("balance", response.getDouble("balance"));
+            }
+
+            return res;
         } else {
-            return -1;
+            return null;
         }
     }
 
@@ -27,20 +38,12 @@ public class CardAPI implements CardAPIINterface {
         return  (response != null && response.getBoolean("ok"));
     }
 
-    public Integer withdrawCash(Session session, int amount) {
+    public JSONObject withdrawCash(Session session, int amount) {
         JSONObject data = new JSONObject();
         data.put("cardNum", session.getCardNum());
         data.put("amount", amount);
 
-        JSONObject response = HttpHelper.Post(Constatns.HOST + Constatns.WITHDRAW_URL, data, session);
-        if (response != null && response.getBoolean("ok") && response.getBoolean("allowed"))
-        {
-            return response.getInt("txnId");
-        }
-        else
-        {
-            return null;
-        }
+        return HttpHelper.Post(Constatns.HOST + Constatns.WITHDRAW_URL, data, session);
     }
 
     public boolean confirmWithdrawal(Session session, Integer txnId, boolean success, int amount) {
@@ -59,13 +62,13 @@ public class CardAPI implements CardAPIINterface {
         return  (response != null && response.getBoolean("ok") && response.getBoolean("isValid"));
     }
 
-    public boolean transfer(Session session, String recipientCardNum, int amount) {
+    public JSONObject transfer(Session session, String recipientCardNum, int amount) {
         JSONObject data = new JSONObject();
         data.put("cardNumFrom", session.getCardNum());
         data.put("cardNumTo", recipientCardNum);
         data.put("amount", amount);
 
         JSONObject response = HttpHelper.Post(Constatns.HOST + Constatns.TRANSFER_URL, data, session);
-        return  (response != null && response.getBoolean("ok"));
+        return  response;
     }
 }

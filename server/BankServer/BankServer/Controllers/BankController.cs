@@ -464,7 +464,7 @@ namespace BankServer.Controllers
 
             Transaction transaction = new Transaction
             { Amount = amount, DatetimeOfTxn = DateTime.Now, TypeOfTxn = 1};
-
+            await _context.SaveChangesAsync();
             try
             {
                 Card cardFrom, cardTo;
@@ -493,77 +493,38 @@ namespace BankServer.Controllers
                 if (cardFrom is CheckingCard checkCard)
                 {
                     if (checkCard.Balance >= amount)
+                    {
                         checkCard.Balance -= amount;
+                    }
+                    else
+                    {
+                        transaction.Success = false;
+                        await _context.SaveChangesAsync();
+                        return new OkObjectResult(new { Ok = false, Errors = new[] { "Not enough money" } });
+                    }
                 }
                 else if (cardFrom is DepositCard depositCard)
                 {
+                    transaction.Success = false;
+                    await _context.SaveChangesAsync();
                     return new OkObjectResult(new { Ok = false, Errors = new[] { "Cannot transfer from Deposit card" } });
-                    //if (depositCard.UpdateBalance())
-                    //{
-                    //    if (depositCard.Balance == depositCard.TotalBalance)
-                    //    {
-                    //        depositCard.Balance -= amount;
-                    //        depositCard.TotalBalance -= amount;
-                    //    }
-                    //    else
-                    //    {
-                    //        depositCard.Balance += depositCard.Balance * depositCard.Rate - amount;
-                    //        depositCard.TotalBalance = depositCard.Balance;
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    depositCard.Rate = 0m;
-                    //    depositCard.Balance -= (amount + amount * depositCard.Commission);
-                    //    depositCard.TotalBalance = depositCard.TotalBalance;
-                    //}
                 }
-                else
+                else if (cardFrom is CreditCard creditCard)
                 {
-                    var creditCard = (CreditCard)cardFrom;
-                    if (creditCard != null)
-
+                    if (creditCard.Balance >= amount)
                     {
-                        if (creditCard.OwnMoney >= amount)
+                        creditCard.OwnMoney -= amount;
+                        creditCard.IsInLimit = creditCard.OwnMoney < 0;
+                        if (creditCard.IsInLimit)
                         {
-                            creditCard.OwnMoney -= amount;
+                            creditCard.LimitWithdrawn = DateTime.Now;
                         }
-                        else if (creditCard.Balance >= amount)
-                        {
-                            creditCard.OwnMoney -= amount;
-                            creditCard.IsInLimit = creditCard.OwnMoney < 0;
-                            if (creditCard.IsInLimit)
-                            {
-                                creditCard.LimitWithdrawn = DateTime.Now;
-                            }
-                            //var initBalance = creditCard.OwnMoney;
-                            //if (!creditCard.IsInLimit)
-                            //{
-                            //    creditCard.OwnMoney -= amount;
-                            //    creditCard.IsInLimit = true;
-                            //    creditCard.LimitWithdrawn = DateTime.Now;
-                            //}
-                            //else if (creditCard.IsInLimit && DateTime.Now <= creditCard.EndLimit)
-                            //{
-
-                            //    creditCard.Limit = amount - creditCard.OwnMoney;
-                            //    creditCard.OwnMoney = 0;
-                            //}
-                            //else if (creditCard.IsInLimit && DateTime.Now > creditCard.EndLimit)
-                            //{
-
-                            //    var days = DateTime.Now.Subtract((DateTime)creditCard.EndLimit).Days;
-                            //    var percents = days * creditCard.PercentIfDelay * initBalance;
-                            //    creditCard.Limit = amount - creditCard.OwnMoney - percents;
-                            //    creditCard.OwnMoney = 0;
-                            //}
-                        }
-                        else
-                        {
-                            transaction.Success = false;
-                            await _context.SaveChangesAsync();
-                            return new OkObjectResult(new { Ok = false, Errors = new[] { "Not enough money" } });
-                        }
+                    }
+                    else
+                    {
+                        transaction.Success = false;
+                        await _context.SaveChangesAsync();
+                        return new OkObjectResult(new { Ok = false, Errors = new[] { "Not enough money" } });
                     }
                 }
 

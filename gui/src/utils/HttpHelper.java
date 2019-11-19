@@ -8,8 +8,10 @@ import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.logging.Logger;
 
 public class HttpHelper {
+    private static Logger logger = Logger.getLogger(HttpHelper.class.getName());
 
     public static JSONObject Get(String targetURL, Session session) {
         return doRequest(targetURL, "GET", null, session);
@@ -63,7 +65,7 @@ public class HttpHelper {
 
             jsonObject = new JSONObject(response.toString());
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.warning("" + e.getMessage());
         }
 
         return jsonObject;
