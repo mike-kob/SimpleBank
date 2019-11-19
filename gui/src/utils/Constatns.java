@@ -1,6 +1,7 @@
 package utils;
 
 import java.awt.*;
+import java.util.logging.FileHandler;
 
 public class Constatns {
 
@@ -20,6 +21,9 @@ public class Constatns {
     public static String TRANSFER_URL = "api/transfer/";
     public static String START_SESSION_URL = "api/startSession/";
     public static String LOGIN_URL = "api/login/";
+
+    public static String ATM_REMAINING_URL = "api/atm/remaining/1";
+    public static String ATM_WITHDRAW_URL = "api/atm/withdraw/";
 
     public static int CANCEL_KEY = 27;
 

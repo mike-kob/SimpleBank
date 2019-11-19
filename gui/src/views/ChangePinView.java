@@ -146,14 +146,19 @@ public class ChangePinView implements View {
                 pinFieldOld.setText("");
                 pinFieldNew.setText("");
                 pinFieldOld.requestFocus();
+            } else if (pinFieldOld.getText().length() != 4) {
+                JOptionPane.showMessageDialog(jpane, "PIN-code must be of length 4");
+                pinFieldOld.setText("");
+                pinFieldNew.setText("");
+                pinFieldOld.requestFocus();
             } else {
-                boolean succes = this.session.getCardAPIClient().changePin(this.session, pinFieldNew.getText());
-                if (!succes)
-                    JOptionPane.showMessageDialog(jpane, "Error occurred");
-                else {
-                    JOptionPane.showMessageDialog(jpane, "PIN-code changes successfully");
-                    this.session.goToPin();
-                }
+                    boolean succes = this.session.getCardAPIClient().changePin(this.session, pinFieldNew.getText());
+                    if (!succes)
+                        JOptionPane.showMessageDialog(jpane, "Error occurred");
+                    else {
+                        JOptionPane.showMessageDialog(jpane, "PIN-code changed successfully");
+                        this.session.goToPin();
+                    }
             }
         });
         jpane.add(confirm, 0);

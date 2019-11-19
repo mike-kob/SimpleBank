@@ -15,7 +15,7 @@ namespace AddCardUtil
         static void Main(string[] args)
         {
             _optionsBuilder = new DbContextOptionsBuilder<BankServerContext>();
-            _optionsBuilder.UseSqlServer("Server=MICHAEL-PC\\SQLEXPRESS;Database=bankDB_3;Trusted_Connection=True;MultipleActiveResultSets=true");
+            _optionsBuilder.UseSqlServer("Server=MICHAEL-PC\\SQLEXPRESS;Database=bankDB_6;Trusted_Connection=True;MultipleActiveResultSets=true");
 
             using (var context = new BankServerContext(_optionsBuilder.Options))
             {

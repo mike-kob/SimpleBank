@@ -2,10 +2,7 @@ package sessions;
 
 import ATM.ATMInterface;
 import ATM.ATM;
-import api.CardAPI;
-import api.CardAPIINterface;
-import api.UserAPI;
-import api.UserAPIInterface;
+import api.*;
 import jdk.nashorn.internal.parser.Token;
 import views.*;
 
@@ -18,6 +15,8 @@ public class Session {
 
     private CardAPIINterface cardAPI = new CardAPI();
     private UserAPIInterface userAPI = new UserAPI();
+    private AtmAPIInterface atmReqAPI = new AtmAPI();
+
     private ATMInterface atmAPI = new ATM();
 
     private String token = null;
@@ -37,6 +36,8 @@ public class Session {
     public CardAPIINterface getCardAPIClient() { return cardAPI;}
 
     public UserAPIInterface getUserAPIClient() { return userAPI;}
+
+    public AtmAPIInterface getAtmReqAPIClient() { return atmReqAPI;}
 
     public ATMInterface getaATMClient() { return atmAPI;}
 

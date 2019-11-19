@@ -1,5 +1,6 @@
 package views;
 
+import org.json.JSONObject;
 import sessions.Session;
 import utils.Constatns;
 
@@ -140,12 +141,17 @@ public class TransferView implements View{
             int amount = Integer.parseInt(tfSum.getText());
             String receiverNum = tfCardNum.getText();
             if (this.session.getCardAPIClient().exists(this.session, receiverNum)) {
-                boolean successful = this.session.getCardAPIClient().transfer(this.session, receiverNum, amount);
-                if (successful) {
+                JSONObject res = this.session.getCardAPIClient().transfer(this.session, receiverNum, amount);
+                if (res == null) {
+                    JOptionPane.showMessageDialog(jpane, "Network error. Try later.");
+                    this.session.goToPin();
+                }
+                else if (res.getBoolean("ok")) {
                     JOptionPane.showMessageDialog(jpane, "Transfer successful!");
                     this.session.goToPin();
-                } else {
-                    JOptionPane.showMessageDialog(jpane, "Unable to perform the transfer!");
+                } else if (res.has("errors")) {
+                    String error = res.getJSONArray("errors").get(0).toString();
+                    JOptionPane.showMessageDialog(jpane, "Unable to perform the transfer!\n" + error);
                 }
             } else  {
                 JOptionPane.showMessageDialog(jpane, "The card doesn't exist!");
