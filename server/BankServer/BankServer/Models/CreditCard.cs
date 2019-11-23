@@ -16,10 +16,9 @@ namespace BankServer.Models
         public decimal PercentIfDelay { get; } = 0.01m;
         public bool IsInLimit { get; set; }
         public DateTime? LimitWithdrawn { get; set; }
-        public DateTime? EndLimit { get => EndLimitDate(); }
+        public DateTime? EndLimit => EndLimitDate();
         public decimal? MinSum { get; set; }
-
-        public DateTime? EndLimitDate()
+        private DateTime? EndLimitDate()
         {
             if (LimitWithdrawn!=null)
             {
