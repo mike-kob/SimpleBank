@@ -141,31 +141,22 @@ namespace BankServer.Controllers
         }
 
         [HttpPut("changePin")]
-        public async Task<ActionResult<CheckingCard>> PutChangePinChecking()
+        public async Task<ActionResult<CheckingCard>> PutChangePinChecking(ChangePinModel model)
         {
-            string body;
-            using (var stream = new StreamReader(HttpContext.Request.Body))
-            {
-                body = await stream.ReadToEndAsync();
-            }
-            var myObject = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(body);
-            string cardNum = myObject["cardNum"];
-            string oldPin = myObject["oldPin"];
-            string newPin = myObject["newPin"];
-            if (!IsAuthenticated(cardNum))
+            if (!IsAuthenticated(model.CardNum))
             {
                 return Unauthorized();
             }
             try
             {
-                Card card = _context.Card.FirstOrDefault(c => c.CardNum == cardNum);
+                Card card = _context.Card.FirstOrDefault(c => c.CardNum == model.CardNum);
                 if (card == null)
                 {
                     return new OkObjectResult(new { Ok = false, Allowed = false, Errors = new[] { "Card doesn't exist" } });
                 }
                 else
                 {
-                    card.Pin = ComputeSha256Hash(newPin);
+                    card.Pin = ComputeSha256Hash(model.NewPin);
                     _context.SaveChanges();
                     return new OkObjectResult(new { Ok = true, Allowed = true });
                 }
@@ -186,36 +177,29 @@ namespace BankServer.Controllers
         [HttpPost]
         [Route("~/api/withdraw")]
 
-        public async Task<ActionResult> Withdraw()
+        public async Task<ActionResult> Withdraw(WithdrawModel model)
         {
-            string body;
-            using (var stream = new StreamReader(HttpContext.Request.Body))
-            {
-                body = await stream.ReadToEndAsync();
-            }
-            var myObject = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(body);
-            string cardNum = Convert.ToString(myObject.cardNum);
-            decimal amount = Convert.ToDecimal(myObject.amount);
-            if (!IsAuthenticated(cardNum))
+           
+            if (!IsAuthenticated(model.CardNum))
             {
                 return Unauthorized();
             }
 
             try
             {
-                if (_context.CheckingCard.FirstOrDefault(c => c.CardNum == cardNum) != null)
+                if (_context.CheckingCard.FirstOrDefault(c => c.CardNum == model.CardNum) != null)
                 {
-                    var card = _context.CheckingCard.FirstOrDefault(c => c.CardNum == cardNum);
+                    var card = _context.CheckingCard.FirstOrDefault(c => c.CardNum == model.CardNum);
                     Transaction transaction = new Transaction
                     {
                         TypeOfTxn = 0,
-                        Amount = amount,
+                        Amount = model.Amount,
                         DatetimeOfTxn = DateTime.Now,
                         CardSenderNum = card.CardNum
                     };
                     _context.Transaction.Add(transaction);
                     await _context.SaveChangesAsync();
-                    if (card.Balance < amount)
+                    if (card.Balance < model.Amount)
                     {
                         await ConfirmWithdraw(card.CardNum, transaction.TxnId, false);
                         return new OkObjectResult(new { Ok = true, Allowed = false, Errors = new[] { "Not enough money" } });
@@ -226,19 +210,19 @@ namespace BankServer.Controllers
                     }
                 }
 
-                if (_context.CreditCard.FirstOrDefault(c => c.CardNum == cardNum) != null)
+                if (_context.CreditCard.FirstOrDefault(c => c.CardNum == model.CardNum) != null)
                 {
-                    var card = await _context.CreditCard.FirstOrDefaultAsync(c => c.CardNum == cardNum);
+                    var card = await _context.CreditCard.FirstOrDefaultAsync(c => c.CardNum == model.CardNum);
                     Transaction transaction = new Transaction
                     {
                         TypeOfTxn = 0,
-                        Amount = amount,
+                        Amount = model.Amount,
                         DatetimeOfTxn = DateTime.Now,
                         CardSenderNum = card.CardNum
                     };
                     _context.Transaction.Add(transaction);
                     await _context.SaveChangesAsync();
-                    if (card.Balance < amount)
+                    if (card.Balance < model.Amount)
                     {
                         await ConfirmWithdraw(card.CardNum, transaction.TxnId, false);
                         new OkObjectResult(new { Ok = true, Allowed = false, Errors = new[] { "Not enough money" } });
@@ -250,13 +234,13 @@ namespace BankServer.Controllers
 
                 }
 
-                if (_context.DepositCard.FirstOrDefault(c => c.CardNum == cardNum) != null)
+                if (_context.DepositCard.FirstOrDefault(c => c.CardNum == model.CardNum) != null)
                 {
-                    var card = _context.DepositCard.FirstOrDefault(c => c.CardNum == cardNum);
+                    var card = _context.DepositCard.FirstOrDefault(c => c.CardNum == model.CardNum);
                     Transaction transaction = new Transaction
                     {
                         TypeOfTxn = 0,
-                        Amount = amount,
+                        Amount = model.Amount,
                         DatetimeOfTxn = DateTime.Now,
                         CardSenderNum = card.CardNum
                     };
@@ -264,7 +248,7 @@ namespace BankServer.Controllers
                     await _context.SaveChangesAsync();
                     if (card.EndDeposit >= DateTime.Now)
                     {
-                        if (card.Balance < amount)
+                        if (card.Balance < model.Amount)
                         {
                             await ConfirmWithdraw(card.CardNum, transaction.TxnId, false);
                             return new OkObjectResult(new { Ok = true, Allowed = false, Errors = new[] { "Not enough money" } });
@@ -276,7 +260,7 @@ namespace BankServer.Controllers
                     }
                     else
                     {
-                        if (card.TotalBalance < amount)
+                        if (card.TotalBalance < model.Amount)
                         {
                             await ConfirmWithdraw(card.CardNum, transaction.TxnId, false);
                             return new OkObjectResult(new { Ok = true, Allowed = false, Errors = new[] { "Not enough money" } });
@@ -445,32 +429,22 @@ namespace BankServer.Controllers
 
         [HttpPost]
         [Route("~/api/transfer")]
-        public async Task<ActionResult<Card>> Transfer()
+        public async Task<ActionResult<Card>> Transfer(TransferModel model)
         {
-            var body = "";
-            using (var stream = new StreamReader(HttpContext.Request.Body))
-            {
-                body = await stream.ReadToEndAsync();
-            }
-            var myObject = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(body);
-            string cardNumFrom = Convert.ToString(myObject.cardNumFrom);
-            string cardNumTo = Convert.ToString(myObject.cardNumTo);
-            decimal amount = Convert.ToDecimal(myObject.amount);
-
-            if (!IsAuthenticated(cardNumFrom))
+            if (!IsAuthenticated(model.CardNumFrom))
             {
                 return Unauthorized();
             }
 
             Transaction transaction = new Transaction
-            { Amount = amount, DatetimeOfTxn = DateTime.Now, TypeOfTxn = 1};
+            { Amount = model.Amount, DatetimeOfTxn = DateTime.Now, TypeOfTxn = 1};
             await _context.SaveChangesAsync();
             try
             {
                 Card cardFrom, cardTo;
-                if (_context.Card.FirstOrDefault(c => c.CardNum == cardNumFrom) != null)
+                if (_context.Card.FirstOrDefault(c => c.CardNum == model.CardNumFrom) != null)
                 {
-                    cardFrom = _context.Card.FirstOrDefault(c => c.CardNum == cardNumFrom);
+                    cardFrom = _context.Card.FirstOrDefault(c => c.CardNum == model.CardNumFrom);
                     transaction.CardSender = cardFrom;
                     transaction.CardSenderNum = cardFrom.CardNum;
                 }
@@ -479,9 +453,9 @@ namespace BankServer.Controllers
                     return new OkObjectResult(new { Ok = false, Errors = new[] { "Sender card not found" } });
                 }
 
-                if (_context.Card.FirstOrDefault(c => c.CardNum == cardNumTo) != null)
+                if (_context.Card.FirstOrDefault(c => c.CardNum == model.CardNumTo) != null)
                 {
-                    cardTo = _context.Card.FirstOrDefault(c => c.CardNum == cardNumTo);
+                    cardTo = _context.Card.FirstOrDefault(c => c.CardNum == model.CardNumTo);
                     transaction.CardReceiver = cardTo;
                     transaction.CardReceiverNum = cardTo.CardNum;
                 }
@@ -492,9 +466,9 @@ namespace BankServer.Controllers
 
                 if (cardFrom is CheckingCard checkCard)
                 {
-                    if (checkCard.Balance >= amount)
+                    if (checkCard.Balance >= model.Amount)
                     {
-                        checkCard.Balance -= amount;
+                        checkCard.Balance -= model.Amount;
                     }
                     else
                     {
@@ -511,9 +485,9 @@ namespace BankServer.Controllers
                 }
                 else if (cardFrom is CreditCard creditCard)
                 {
-                    if (creditCard.Balance >= amount)
+                    if (creditCard.Balance >= model.Amount)
                     {
-                        creditCard.OwnMoney -= amount;
+                        creditCard.OwnMoney -= model.Amount;
                         creditCard.IsInLimit = creditCard.OwnMoney < 0;
                         if (creditCard.IsInLimit)
                         {
@@ -531,13 +505,13 @@ namespace BankServer.Controllers
                 switch (cardTo)
                 {
                     case CheckingCard checkingCard:
-                        checkingCard.Balance += amount;
+                        checkingCard.Balance += model.Amount;
                         break;
                     case DepositCard depositCard:
-                        depositCard.Balance += amount;
+                        depositCard.Balance += model.Amount;
                         break;
                     case CreditCard creditCard:
-                        creditCard.OwnMoney += amount;
+                        creditCard.OwnMoney += model.Amount;
                         break;
                 }
 
@@ -556,21 +530,14 @@ namespace BankServer.Controllers
 
         [HttpPost]
         [Route("login")]
-        public async Task<ActionResult> Login()
+        public async Task<ActionResult> Login(LoginModel model)
         {
-            var body = "";
-            using (var stream = new StreamReader(HttpContext.Request.Body))
-            {
-                body = await stream.ReadToEndAsync();
-            }
-            var myObject = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(body);
-            string cardNum = Convert.ToString(myObject.cardNum);
-            string pin = Convert.ToString(myObject.pin);
-            string hashedPin = ComputeSha256Hash(pin);
+          
+            string hashedPin = ComputeSha256Hash(model.Pin);
             Card card;
-            if (_context.Card.FirstOrDefault(c => c.CardNum == cardNum) != null)
+            if (_context.Card.FirstOrDefault(c => c.CardNum == model.CardNum) != null)
             {
-                card = _context.Card.FirstOrDefault(c => c.CardNum == cardNum);
+                card = _context.Card.FirstOrDefault(c => c.CardNum == model.CardNum);
                 if (card.Pin == hashedPin)
                 {
                     var now = DateTime.Now;
@@ -582,7 +549,7 @@ namespace BankServer.Controllers
                     //var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
                     var encodedJwt = Convert.ToBase64String(Guid.NewGuid().ToByteArray()); 
                     Token token = new Token
-                    { CardNum = cardNum, CardToken = encodedJwt, Create = DateTime.Now };
+                    { CardNum = model.CardNum, CardToken = encodedJwt, Create = DateTime.Now };
                     _context.Token.Add(token);
                     _context.SaveChanges();
                     return new OkObjectResult(new Log { Ok = true, Token = encodedJwt });
