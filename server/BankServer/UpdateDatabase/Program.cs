@@ -70,7 +70,7 @@ namespace UpdateDatabase
                 if (card.Balance < 0) continue;
                 if (!(card.EndLimit < DateTime.Now)) continue;
                 var days = (DateTime.Now - card.EndLimit).Value.Days;
-                var lastTransaction = transactions.FirstOrDefault(x => x.TypeOfTxn == 2 && x.CardSenderNum == card.CardNum);
+                var lastTransaction = transactions.Where(x => x.TypeOfTxn == 2 && x.CardSenderNum == card.CardNum).OrderByDescending(x=>x.DatetimeOfTxn).FirstOrDefault();
                 if (lastTransaction != null)
                 {
                     days = (DateTime.Now - lastTransaction.DatetimeOfTxn).Days;
