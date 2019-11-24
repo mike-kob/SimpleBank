@@ -5,3 +5,8 @@
 /.vs/simple_bank/v16/.suo
 /.vs/slnx.sqlite
 /.vs/VSWorkspaceState.json
+/server/BankServer/bin
+/server/BankServer/obj
+/simple_bank/server/BankServer/BankServer/bin
+/simple_bank/server/BankServer/BankServer/obj
+/.vs/
